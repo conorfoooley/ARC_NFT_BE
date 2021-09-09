@@ -1,4 +1,4 @@
-import { create, getAll, getOne, findOrCreateUser, update, removeApiKey } from './user'
+import { create, getAll, getOne, findOrCreateUser, update } from './user'
 
 /**
  * Exports the users actions routes.
@@ -11,5 +11,4 @@ export const user = async (router: any, options: any) => {
   router.post('/auth', findOrCreateUser);
   router.post('/', create);
   router.put('/:walletId', update);
-  router.delete('/:walletId/:exchangeId/:apiKey', removeApiKey);
 }
