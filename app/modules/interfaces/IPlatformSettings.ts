@@ -1,5 +1,7 @@
+import { IWallet } from "./IWallet";
+
 export interface IPlatformSettings {
-    defaultWallet?: string
+    defaultWallet?: IWallet
     defaultToken?: string
     theme?: string
 }
