@@ -4,28 +4,11 @@ import { formatPercentage } from '../../util/formatPercent';
 import { respond } from "../../util/respond";
 import axios from 'axios';
 
-const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
-  const exchange = new ccxt[exchangeName]();
-  const response = await exchange.fetchMarkets();
-  const formatedSymbols = quoteArray.map(quote => `${quote}/USDT`);
-
-  const allTickers = await exchange.fetchTickers(formatedSymbols);
-
-  Object.keys(allTickers).forEach(base => {
-    const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
-    if(exists){
-      exists.volume_24h_usd = +exists.volume_24h * +allTickers[base].ask;
-      exists.price_usd = +exists.price * +allTickers[base].ask;
-    }
-  })
-  return formatedMarket;
-}
-
-const binanceMarketQuote = async (quote: string, listMarkets: any) => {
+const binanceMarketQuote = async (quote: string, listMarkets: any, dolar:any) => {
   const exchange = new ccxt.binance();
   const response = await exchange.fetchMarkets();
   const filterMarkets = [];
-  const baseArry = [];
+
   
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
@@ -40,35 +23,26 @@ const binanceMarketQuote = async (quote: string, listMarkets: any) => {
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
-    if(!baseArry.find(base => base === auxBase)){
-      baseArry.push(auxBase);
-    }
-
     return {
       symbol: allTickers[item].symbol,
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       market: auxBase,
       price: +allTickers[item].info.lastPrice,
-      price_usd: 0,
+      price_usd: +allTickers[item].info.lastPrice * +dolar,
       volume_24h: +allTickers[item].info.volume,
-      volume_24h_usd: 0,
+      volume_24h_usd: +allTickers[item].info.volume * +dolar,
       variationPrice: +allTickers[item].info.priceChange,
       change_24h: +allTickers[item].info.priceChangePercent
     }
   })
-  
-  const responseFormated = await getPriceByUSDT('binance', baseArry, formatedMarket);
-  // console.log(responseFormated[0])
-  return responseFormated
-
+    return formatedMarket
 }
 
-const huobiMarketQuote = async (quote: string, listMarkets: any) => {
+const huobiMarketQuote = async (quote: string, listMarkets: any, dolar:any) => {
   const exchange = new ccxt.huobi();
   const response = await exchange.fetchMarkets();
   const filterMarkets = [];
-  const baseArry = [];
 
   
   listMarkets.map(item => {
@@ -85,35 +59,27 @@ const huobiMarketQuote = async (quote: string, listMarkets: any) => {
   const allSymbols = Object.keys(allTickers);
   const formatedMarket = allSymbols.map(item => {
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
+    if(allTickers[item].symbol === 'BCH/BTC') console.log(allTickers[item])
     const variationPrice = +allTickers[item].open - +allTickers[item].ask;
-    if(!baseArry.find(base => base === auxBase)){
-      baseArry.push(auxBase);
-    }
-    
     return {
       symbol: allTickers[item].symbol,
       market: auxBase,
       quote: auxQuote,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       price: +allTickers[item].ask,
-      price_usd: 0,
+      price_usd: +allTickers[item].ask * +dolar,
       volume_24h: +allTickers[item].info.vol,
-      volume_24h_usd: 0,
+      volume_24h_usd: +allTickers[item].info.vol * +dolar,
       variationPrice,
       change_24h: +allTickers[item].percentage
     }
   })
-
-  const responseFormated = await getPriceByUSDT('huobi', baseArry, formatedMarket);
-  return responseFormated
-
+    return formatedMarket
 }
 
-const ftxMarketQuote = async (quote: string, listMarkets: any) => {
+const ftxMarketQuote = async (quote: string, listMarkets: any, dolar:any) => {
   const exchange = new ccxt.ftx();
   const response = await exchange.fetchMarkets();
-  const baseArry = [];
-
   const filterMarkets = [];
   listMarkets.map(item => {
     if(!filterMarkets.find(subitem=> subitem === item.symbol) 
@@ -134,9 +100,6 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   }
     const [ auxBase , auxQuote] = allTickers[item].symbol.split('/');
     const variationPrice = +allTickers[item].ask - +allTickers[item].close;
-    if(!baseArry.find(base => base === auxBase)){
-      baseArry.push(auxBase);
-    }
 
     return {
       symbol: allTickers[item].symbol,
@@ -144,17 +107,14 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       market: auxBase,
       precision: {amount: 4 , base: 8 , price: 6 , quote: 8},
       price: +allTickers[item].ask,
-      price_usd: 0,
+      price_usd: +allTickers[item].ask * +dolar,
       volume_24h: +allTickers[item].info.quoteVolume24h,
-      volume_24h_usd: 0,
+      volume_24h_usd: +allTickers[item].info.volumeUsd24h,
       variationPrice,
       change_24h: formatPercentage((+allTickers[item].percentage))
     }
   })
-    
-  const responseFormated = await getPriceByUSDT('ftx', baseArry, formatedMarket);
-  return responseFormated
-
+    return formatedMarket
 
 }
 
@@ -164,13 +124,17 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
   const exchange = new ccxt[formatedExchangeName]();
   const response = await exchange.fetchMarkets();
   const allSingleQuotes = [];
+
+  const responseDolar = await axios.get('http://economia.awesomeapi.com.br/json/last/USD-BRL');
+  const dolar = responseDolar.data['USDBRL'].ask
+
   
   const onlySpotMarkets =
   formatedExchangeName === 'binance' 
-      ? await binanceMarketQuote(quote, response) 
+      ? await binanceMarketQuote(quote, response, dolar) 
       : formatedExchangeName === 'huobi'
-        ? await huobiMarketQuote(quote, response)
-        : await ftxMarketQuote(quote, response); 
+        ? await huobiMarketQuote(quote, response, dolar)
+        : await ftxMarketQuote(quote, response, dolar); 
   const ordenedMarkets = onlySpotMarkets.sort((a :any, b :any) =>  a.volume - b.volume);
 
   response.forEach(item => {
@@ -182,8 +146,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
       return allSingleQuotes.push(auxQuote);
     }
   })
-
-  console.log(ordenedMarkets[0])
+  
 
     return res.send({
       allSingleQuotes,
