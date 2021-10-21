@@ -31,7 +31,9 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];
-  
+
+
+
   if (symbol) {
     try {
       for (const exchangeName of allExchanges) {
