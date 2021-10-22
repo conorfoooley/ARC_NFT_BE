@@ -25,4 +25,3 @@ export function routes(app: any): Array<Promise<any>> {
     app.register(emailContact, { prefix: "ws/v2/emailContact" }),
   ];
 }
-
