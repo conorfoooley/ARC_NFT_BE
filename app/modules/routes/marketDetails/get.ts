@@ -31,14 +31,15 @@ export const loadAllExchangesOrderBook = async(req: FastifyRequest, res: Fastify
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   let allExchangesOrderBook = [];
-  
+
+
+
   if (symbol) {
     try {
       for (const exchangeName of allExchanges) {
         const exchange = new ccxt[exchangeName]();
         const response = await exchange.fetchOrderBook(formattedSymbol);
-        const precision = {amount: 4 , base: 8 , price: 6 , quote: 8};
-        allExchangesOrderBook.push({exchangeName: exchange.name, orderBook: response, precision});
+        allExchangesOrderBook.push({exchangeName: exchange.name, response});
       }
     } catch (error) {
       console.log(error);
