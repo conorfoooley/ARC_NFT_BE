@@ -6,3 +6,5 @@
 **/logs/*.*
 dbaconfig.ts*
 **/.ssh/*
+cdk.out
+venv
