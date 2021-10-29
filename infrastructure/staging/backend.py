@@ -103,30 +103,6 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "mongo-creds", "key": "host"}
                                         },
                                     },
-                                    {
-                                        "name": "JWT_SECRET",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "auth", "key": "jwt_secret"}
-                                        },
-                                    },
-                                    {
-                                        "name": "EMAIL_SERVICE_API_KEY",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "email", "key": "service_api_key"}
-                                        },
-                                    },
-                                    {
-                                        "name": "EMAIL_SERVICE_DOMAIN",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "email", "key": "service_domain"}
-                                        },
-                                    },
-                                    {
-                                        "name": "LOGGING",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "logging", "key": "logging"}
-                                        },
-                                    },
                                 ],
                             }
                         ]
@@ -140,7 +116,7 @@ class Stack(core.Stack):
             "kind": "Service",
             "metadata": {"name": f"{props['namespace']}-service"},
             "spec": {
-                "ports": [{"port": 80, "targetPort": 3001, "protocol": "TCP"}],
+                "ports": [{"port": 80, "targetPort": 3000, "protocol": "TCP"}],
                 "type": "NodePort",
                 "selector": {"app.kubernetes.io/name": f"{props['namespace']}-app"},
             },
