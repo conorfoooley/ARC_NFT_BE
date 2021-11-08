@@ -6,7 +6,6 @@
 **/logs/*.*
 dbaconfig.ts*
 **/.ssh/*
-yarn.lock
 
 venv
 cdk.out

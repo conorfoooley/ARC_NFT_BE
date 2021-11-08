@@ -2,7 +2,6 @@ import { user } from "./user";
 import { log } from "./logger";
 import { marketOverview } from "./marketOverview";
 import { marketDetails } from "./marketDetails";
-import { symbolPrice } from "./symbolPrice";
 import { userOrderBook } from "./orderBook";
 import { market } from "./market";
 import { order } from "./order";
@@ -23,7 +22,6 @@ export function routes(app: any): Array<Promise<any>> {
     app.register(marketDetails, { prefix: "ws/v2/marketDetails" }),
     app.register(userOrderBook, { prefix: "ws/v2/ordersBook" }),
     app.register(market, { prefix: "ws/v2/market" }),
-    app.register(symbolPrice, { prefix: "ws/v2/symbolPrice" }),
     app.register(emailContact, { prefix: "ws/v2/emailContact" }),
   ];
 }
