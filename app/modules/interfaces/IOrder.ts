@@ -7,9 +7,9 @@ export interface IOrder {
   amount?: string;
   price?: number,
   user?: {
-    exchanges: IAPIKey[];
-    settings?: {
-      defaultWallet?: string;
+    address: string;
+    details: {
+      exchanges: IAPIKey[];
     }
   };
 }
