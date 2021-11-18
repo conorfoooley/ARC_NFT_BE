@@ -207,11 +207,10 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
   await Promise.all(
     exchanges.map(async (exchangeName) => {
       try {
-      const exchange = new ccxt[exchangeName]();
-      //const binance = new ccxt.binance();
-      const markets = await exchange.loadMarkets();
+      const binance = new ccxt.binance();
+      const markets = await binance.loadMarkets();
       if(markets[formattedSymbol]){
-        const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
+        const formattedSymbolMarket = await binance.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
           price: formattedSymbolMarket.ask
