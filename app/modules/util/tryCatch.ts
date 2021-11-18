@@ -1,5 +1,5 @@
 import { config } from "../../config/config";
-import { LogController } from "../controller/LogController";
+import { Logger } from "../services/Logger";
 
 /**
  * Standarizes a try catch statement
@@ -18,11 +18,12 @@ export const tryCatch = async (object: any, f: string, opt?: any) => {
   } catch (error) {
     if (opt.transaction) opt.transaction.rollback();
     if (config.logging) {
-      config.__logPool.push({
-        type: "TRANSACTION_ERROR",
-        error: error.message || error.response,
-        ...error,
-      });
+      const log = new Logger(
+        "error",
+        "",
+        error.message || error.response || error
+      );
+      log.save();
     }
     return null;
   }
