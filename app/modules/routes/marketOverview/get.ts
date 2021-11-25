@@ -2,6 +2,8 @@ import * as ccxt from 'ccxt';
 import { FastifyReply, FastifyRequest } from "fastify";
 import { formatPercentage } from '../../util/formatPercent';
 import { removeScientificNotation } from '../../util/removeScientificNotation';
+import { respond } from "../../util/respond";
+import axios from 'axios';
 
 const getPriceByUSDT = async  (exchangeName, quoteArray, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
@@ -163,8 +165,6 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
   return responseFormated
 }
 
-const kucoinMarketQuote = async (quote: string, listMarkets: any) => { }
-
 export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply) => {
   const { exchangeName, quote } = req.params as any;
   const formatedExchangeName = exchangeName.toLowerCase();
@@ -198,6 +198,7 @@ export const loadMarketOverview = async (req: FastifyRequest, res: FastifyReply)
 }
 
 export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply) => {
+
   const { symbol } = req.params as any;
   const formattedSymbol = symbol.replace('-', '/');
   const exchanges = ['binance' , 'huobi', 'ftx'];
@@ -206,10 +207,10 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
   await Promise.all(
     exchanges.map(async (exchangeName) => {
       try {
-      const exchange = new ccxt[exchangeName]();
-      const markets = await exchange.loadMarkets();
+      const binance = new ccxt.binance();
+      const markets = await binance.loadMarkets();
       if(markets[formattedSymbol]){
-        const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
+        const formattedSymbolMarket = await binance.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
           price: formattedSymbolMarket.ask
@@ -220,7 +221,10 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
         console.log(err)
       }
     })
-  );
+   
+  )
  
+
+
   return res.send(allValues)
 }

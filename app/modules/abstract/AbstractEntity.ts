@@ -256,7 +256,7 @@ export abstract class AbstractEntity {
     }
 
     /**
-     * Returns the contents of `{CurrentController}::data`
+     * Returns the contents of `DepoAuthController::data`
      * @returns 
      */
     getData(): Array<any> | any {

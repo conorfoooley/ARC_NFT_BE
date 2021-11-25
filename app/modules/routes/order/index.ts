@@ -1,4 +1,4 @@
-import { sendOrder, sendCancelOrder } from './get';
+import { sendOrder, cancelOrder } from './get';
 
 /**
  * Exports the orders actions routes.
@@ -7,5 +7,5 @@ import { sendOrder, sendCancelOrder } from './get';
  */
  export const order = async (router: any, options: any) => {
   router.post('/:exchangeName', sendOrder);
-  router.post('/cancel/:walletId/:exchangeName/:orderId', sendCancelOrder);
+  router.post('/:exchangeName/:orderId', cancelOrder);
 }
