@@ -7,7 +7,6 @@ import { userOrderBook } from "./orderBook";
 import { market } from "./market";
 import { order } from "./order";
 import { emailContact } from "./emailContact";
-import { pool } from "./pool";
 
 /**
  * Creates the array of routes to be set up.
@@ -23,10 +22,9 @@ export function routes(app: any): Array<Promise<any>> {
     app.register(marketOverview, { prefix: "ws/v2/mktOverview" }),
     app.register(marketDetails, { prefix: "ws/v2/marketDetails" }),
     app.register(userOrderBook, { prefix: "ws/v2/ordersBook" }),
-    app.register(order, { prefix: "ws/v2/order" }),
     app.register(market, { prefix: "ws/v2/market" }),
     app.register(symbolPrice, { prefix: "ws/v2/symbolPrice" }),
     app.register(emailContact, { prefix: "ws/v2/emailContact" }),
-    app.register(pool, { prefix: "ws/v2/pool" }),
   ];
 }
+

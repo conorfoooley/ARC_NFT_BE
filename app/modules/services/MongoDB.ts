@@ -11,17 +11,14 @@ export class MongoDBService {
   private port = "" as string;
 
   constructor(dbName?: string) {
-    console.log(config.mongodb);
+    console.log("Creating MongoDB Instance", config.mongodb);
     this.dbname = dbName ?? config.mongodb.database;
     this.password = encodeURIComponent(config.mongodb.password);
     this.username = encodeURIComponent(config.mongodb.username);
     this.host = config.mongodb.host;
     this.port = config.mongodb.port;
 
-    let connectionStr = `mongodb://${this.username}:${this.password}@${this.host}:${this.port}/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false`;
-    if (config.env === "development") {
-      connectionStr = `mongodb://${this.username}:${this.password}@${this.host}?authMecanism=DEFAULT`;
-    }
+    let connectionStr = `mongodb+srv://${this.username}:${this.password}@${this.host}/defaultDb?retryWrites=true&w=majority`;
 
     this.client = new MongoClient(connectionStr, {
       useNewUrlParser: true,
@@ -36,16 +33,22 @@ export class MongoDBService {
    * @returns {Promise<Db>} the mongodb connection
    */
   connect(): Promise<Db> {
+    console.log("Connection requested.");
     return new Promise((resolve, reject): Promise<Db> => {
       try {
         this.client.connect((err) => {
-          if (err) reject(err);
-          else {
+          console.log("Trying to connect to mongodb");
+          if (err) {
+            console.log(err);
+            reject(err);
+          } else {
+            console.log("Connection Succeed");
             this.db = this.client.db(this.dbname);
             resolve(this.db);
           }
         });
       } catch (error) {
+        console.log(error);
         reject(error);
         return;
       }
@@ -56,6 +59,7 @@ export class MongoDBService {
    * Closes the connection with the server
    */
   disconnect() {
+    console.log("Disconnecting from database..");
     this.client.close();
   }
 }
