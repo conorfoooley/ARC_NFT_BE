@@ -26,16 +26,14 @@ export class LogController extends AbstractEntity {
    * Dispatch log data to the database
    */
   static async dispatch() {
-    console.log(`LogController::dispatch::ErrorLogger`);
     const logPool = config.__logPool;
     if (logPool.length) {
       const ctl = new LogController(logPool);
       try {
         await ctl.create();
-        ctl.disconnect();
         config.__logPool.splice(0);
       } catch (error) {
-        console.log(`LogController::dispatch::ErrorLogger`, error);
+        console.error(error);
       }
     }
     return;
