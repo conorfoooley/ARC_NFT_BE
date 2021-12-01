@@ -1,16 +1,13 @@
-import { Db } from "mongodb";
-import { MongoDBService } from "../modules/services/MongoDB";
-
 if (process.env && !process.env.ENV?.match(/prod|stag/gi)) {
   const dotenv = require("dotenv");
   dotenv.config();
 }
 
-const config = {
+export const config = {
   io: null,
   __logPool: [],
 
-  env: process.env.ENV || "staging",
+  env: process.env.ENV || "development",
   logging: process.env.LOGGING && process.env.LOGGING === "true" ? true : false,
   logLevel:
     process.env.LOG_LEVEL ||
@@ -21,11 +18,6 @@ const config = {
     username: process.env["MONGODB_USER"],
     password: process.env["MONGODB_PASSWORD"],
     port: process.env["MONGODB_PORT"],
-    instance: null as Db,
-    createInstance: async () => {
-      const instance = new MongoDBService();
-      config.mongodb.instance = await instance.connect();
-    },
   },
   server: {
     port: process.env["SERVER_PORT"],
@@ -50,7 +42,3 @@ const config = {
     };
   },
 };
-
-config.mongodb.createInstance();
-
-export { config };

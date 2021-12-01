@@ -1,9 +1,10 @@
 {
   "name": "webservice-wsrv01",
-  "version": "0.5.5",
+  "version": "0.4.3",
+  "description": "WSRV01",
   "main": "./server.ts",
   "scripts": {
-    "start": "nodemon -r esm server.ts "
+    "start": "nodemon -r esm server.ts"
   },
   "dependencies": {
     "aws-sdk": "^2.1016.0",
