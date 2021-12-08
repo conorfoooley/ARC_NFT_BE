@@ -85,22 +85,14 @@ async function mount() {
   return app;
 }
 
-config.mongodb
-  .createInstance()
-  .then(() => {
-    /** Server start */
-    mount().then((app) => {
-      app.listen(config.server.port ?? 3001, "0.0.0.0", (error, addr) => {
-        if (error) {
-          if (config.logging) {
-            console.error(error);
-          }
-          process.exit(1);
-        }
-      });
-    });
-  })
-  .catch((err) => {
-    console.error(err);
-    process.exit(1);
+/** Server start */
+mount().then((app) => {
+  app.listen(config.server.port ?? 3001, "0.0.0.0", (error, addr) => {
+    if (error) {
+      if (config.logging) {
+        console.error(error);
+      }
+      process.exit(1);
+    }
   });
+});
