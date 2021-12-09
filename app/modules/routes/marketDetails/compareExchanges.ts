@@ -9,7 +9,7 @@ const getBinancePrice = async (symbol: string, type:string, userPriceUnit: strin
 
   const allMarkets = await exchange.loadMarkets();
  
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  if(allMarkets[symbol]){
     const { ask: price, info:{ volume }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[symbol];
     
@@ -39,7 +39,7 @@ const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string,
     }});
   const allMarkets = await exchange.loadMarkets();
 
-  if(allMarkets[symbol] && allMarkets[symbol].active){
+  if(allMarkets[symbol]){
     const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[symbol];
 
@@ -52,7 +52,6 @@ const getHuobiPrice = async (symbol: string, type:string, userPriceUnit: string,
       volume: vol
     }
   }
-
   return {
     exchange: 'Huobi',
     exchangePrice: 0,
@@ -71,7 +70,7 @@ const getFTXPrice = async (symbol: string, type:string, userPriceUnit: string, u
     }});
   const allMarkets = await exchange.loadMarkets();
 
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  if(allMarkets[symbol]){
     const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[symbol];
 
@@ -102,7 +101,7 @@ const getKucoinPrice = async (symbol: string, type:string, userPriceUnit: string
 
   const allMarkets = await exchange.loadMarkets();
  
-  if(allMarkets[symbol] &&  allMarkets[symbol].active){
+  if(allMarkets[symbol]){
     const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[symbol];
     
