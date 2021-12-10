@@ -151,8 +151,7 @@ const ftxMarketQuote = async (quote: string, listMarkets: any) => {
       volume_24h: +allTickers[item].info.quoteVolume24h,
       volume_24h_usd: 0,
       variationPrice,
-      change_24h: +allTickers[item].percentage,
-      // change_24h: formatPercentage((+allTickers[item].percentage)),
+      change_24h: formatPercentage((+allTickers[item].percentage)),
       bid: +allTickers[item].info.bid,
       ask: +allTickers[item].info.ask,
       high: +allTickers[item].info.high,
@@ -272,7 +271,7 @@ export const loadSymbolOverview = async (req: FastifyRequest, res: FastifyReply)
         const formattedSymbolMarket = await exchange.fetchTicker(formattedSymbol);
         allValues.push({
           exchange: exchangeName,
-          price: removeScientificNotation(+formattedSymbolMarket.ask)
+          price: formattedSymbolMarket.ask
         })
         
         }  
