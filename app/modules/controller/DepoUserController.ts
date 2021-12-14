@@ -78,7 +78,7 @@ export class DepoUserController extends AbstractEntity {
   async findUser(walletId: string): Promise<IUser | IResponse> {
     const query = this.findUserQuery(walletId);
     const result = await this.findOne(query, {
-      projection: { "exchanges.apiSecret": 0, _id: 0 },
+      projection: { "exchanges.apiSecret": 0 },
     });
     if (result) {
       return result;
@@ -265,7 +265,7 @@ export class DepoUserController extends AbstractEntity {
     errors: any[];
   } {
     const document = { $set: {} };
-    delete user._id;
+
     const errors = this.mountUpdateExchanges(user);
     this.mountUpdateWallets(user);
 
@@ -372,7 +372,7 @@ export class DepoUserController extends AbstractEntity {
     // Also encrypts extrafields.password if exists.
     if (apiKey.extraFields) {
       _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
-        if (extraField.fieldName.match(/password/i)) {
+        if (extraField.fieldName?.match(/password/i)) {
           return {
             fieldName: extraField.fieldName,
             value: handler.encrypt(extraField.value),
@@ -408,7 +408,7 @@ export class DepoUserController extends AbstractEntity {
       // Decrypts also extrafields.password if exists
       if (apiKey.extraFields) {
         _apiKey.extraFields = apiKey.extraFields.map((extraField) => {
-          if (extraField.fieldName.match(/password/i)) {
+          if (extraField.fieldName?.match(/password/i)) {
             return {
               fieldName: extraField.fieldName,
               value: handler.decrypt(extraField.value),

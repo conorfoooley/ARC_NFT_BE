@@ -60,7 +60,6 @@ export const findOrCreateUser = async (
       // And if it didn't find, then create a new user
       const result = await ctl.create();
       if (!result.code) {
-        delete user._id;
         delete result.authorizedBrowsers;
       } else {
         res.code(result.code).send(result);
@@ -93,9 +92,9 @@ export const update = async (req: FastifyRequest, res: FastifyReply) => {
   const { walletId } = req.params as any;
   const ctl = new DepoUserController(user);
   try {
-    if (Array.isArray(user.exchanges)) await isAPIKeyValid(user.exchanges[0]);
-    const result = await ctl.update(walletId.toLowerCase());
-    const resultUser = await ctl.findUser(walletId.toLowerCase());
+    await isAPIKeyValid(user.exchanges[0]);
+    const result = await ctl.update(walletId);
+    const resultUser = await ctl.findUser(walletId);
     if (!result) {
       res.send(resultUser);
     } else {

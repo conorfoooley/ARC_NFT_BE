@@ -1,11 +1,11 @@
-import { getSymbolUsdtPrice, getSymbolUsdtPrices } from "./get";
+import { getSymbolUsdtPrice } from './get'
 
 /**
  * Exports the orders actions routes.
- * @param {*} router
- * @param {*} options
+ * @param {*} router 
+ * @param {*} options 
  */
-export const symbolPrice = async (router: any, options: any) => {
-  router.get("/:symbol", getSymbolUsdtPrice);
-  router.post("/", getSymbolUsdtPrices);
-};
+ export const symbolPrice = async (router: any, options: any) => {
+  router.get('/:symbol', getSymbolUsdtPrice);
+
+}
