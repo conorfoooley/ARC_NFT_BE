@@ -3,9 +3,6 @@ import { IAPIKey } from '../interfaces/IAPIKey';
 
 export async function isAPIKeyValid(key: IAPIKey) {
   // console.log('key valid: ', key)
-
-  console.log('key de validação aqui: ', key)
-
   if(ccxt[key.id]){
     const exchange = new ccxt[key.id]();
     exchange.apiKey = key.apiKey;
