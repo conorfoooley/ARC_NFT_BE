@@ -19,10 +19,11 @@ const getUsdtValue = async  (exchangeName, formatedMarket) => {
   return formatedMarket;
 }
 
-const getBinanceBalance = async ( userData ) => {
+const getBinanceBalance = async ( userData, marketType ) => {
   const exchange = new ccxt.binance();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
+  exchange.options.defaultType = marketType;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const responseBalance = await exchange.fetchBalance();
   const userSymbols = (Object.keys(responseBalance['total']).filter(item => responseBalance['total'][item] !== 0));
@@ -38,10 +39,11 @@ const getBinanceBalance = async ( userData ) => {
   return responseFormated;
 }
 
-const getHuobiBalance = async ( userData ) => {
+const getHuobiBalance = async ( userData, marketType ) => {
   const exchange = new ccxt.huobi();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
+  exchange.options.defaultType = marketType;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   const responseBalance = await exchange.fetchBalance();
 
@@ -58,22 +60,20 @@ const getHuobiBalance = async ( userData ) => {
   return responseFormated;
 };
 
-const getFtxBalance = async ( userData ) => {
+const getFtxBalance = async ( userData, marketType ) => {
   const exchange = new ccxt.ftx();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
-  
+  exchange.options.defaultType = marketType;
   // config for subaccounts 
   // exchange.headers = {
     // 'FTX-SUBACCOUNT': 'depo_test',
   // }
 
   if(userData.extraFields.length > 0){
-    const userSubAccount = userData.extraFields?.find(field => field.fieldName === 'Subaccount');
-    if(userSubAccount){
-      exchange.headers = {
-        'FTX-SUBACCOUNT': userSubAccount.value,
-      }
+    const userSubAccount = userData.extraFields.find(field => field.fieldName === 'Subaccount');
+    exchange.headers = {
+      'FTX-SUBACCOUNT': userSubAccount.value,
     }
   }
  
@@ -91,12 +91,12 @@ const getFtxBalance = async ( userData ) => {
   return responseSymbol
 };
 
-const getKucoinBalance = async ( userData ) => {
+const getKucoinBalance = async ( userData, marketType ) => {
   const exchange = new ccxt.kucoin();
   exchange.apiKey = userData.apiKey;
   exchange.secret = userData.apiSecret;
   exchange.password = userData.passphrase;
-  
+  exchange.options.defaultType = marketType;
   await exchange.checkRequiredCredentials() // throw AuthenticationError
   
   const responseBalance = await exchange.fetchBalance();
@@ -115,7 +115,7 @@ const getKucoinBalance = async ( userData ) => {
 }
 
 export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) => {
-  const { walletId } = req.params as any;
+  const { walletId, marketType } = req.params as any;
 
   const userController = new DepoUserController();
   const userExchanges :any = await userController.getUserApiKeys(walletId);
@@ -129,7 +129,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance' )){
-    const binanceResponse = await getBinanceBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'))
+    const binanceResponse = await getBinanceBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'binance'), marketType)
 
     if(binanceResponse){
       response.symbols.push(...binanceResponse);
@@ -137,7 +137,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi' )){
-    const responseHuobi = await getHuobiBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi'))
+    const responseHuobi = await getHuobiBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'huobi'), marketType)
 
     if(responseHuobi){
       response.symbols.push(...responseHuobi);
@@ -145,7 +145,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx' )){
-    const responseFTX = await getFtxBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'))
+    const responseFTX = await getFtxBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'ftx'), marketType)
 
     if(responseFTX){
       response.symbols.push(...responseFTX);
@@ -153,7 +153,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   }
 
   if(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin' )){
-    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'))
+    const responseKucoin = await getKucoinBalance(userExchanges.find(exchange => exchange.id.toLowerCase() === 'kucoin'), marketType)
 
     if(responseKucoin){
       response.symbols.push(...responseKucoin);
