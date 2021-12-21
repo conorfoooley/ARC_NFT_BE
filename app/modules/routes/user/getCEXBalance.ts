@@ -6,25 +6,7 @@ import { DepoUserController } from "../../controller/DepoUserController";
 const getUsdtValue = async  (exchangeName, formatedMarket) => {
   const exchange = new ccxt[exchangeName]();
   const response = await exchange.fetchMarkets();
-
-  const allMarkets = await exchange.loadMarkets();
-
-  const formatedSymbols = formatedMarket.map(quote => {
-    const symbol = `${quote.symbol}/USDT`
-    const formattedSymbol = `${quote.symbol}/USD`;
-    const invertedSymbol = `USDT/${quote.symbol}`
-    const invertedFormattedSymbol = `USD/${quote.symbol}`
-
-    const realSymbol = 
-      allMarkets[symbol] ? symbol 
-      : allMarkets[formattedSymbol] ? formattedSymbol 
-        : allMarkets[invertedSymbol] ? invertedSymbol 
-        : allMarkets[invertedFormattedSymbol] ? invertedFormattedSymbol
-          : undefined
-
-    return realSymbol
-  });
-
+  const formatedSymbols = formatedMarket.map(quote => `${quote.symbol}/USDT`);
 
   if (exchangeName === 'huobi')
     await exchange.fetchTicker('ETH/USDT');
@@ -32,22 +14,10 @@ const getUsdtValue = async  (exchangeName, formatedMarket) => {
   const allTickers = await exchange.fetchTickers(formatedSymbols);
 
   Object.keys(allTickers).forEach(base => {
-
-    const filterBy = base.split('/')[0] === 'USDT' || base.split('/')[0]=== 'USD' ? base.split('/')[1] : base.split('/')[0] 
-
-    const exists = formatedMarket.find(item => 
-      item.symbol === filterBy
-      );
+    const exists = formatedMarket.find(item => item.symbol.split('/')[0] === base.split('/')[0]);
     if(exists){
-      const [ auxBase , _ ] = exists.symbol.indexOf('/') !== -1 ? exists.symbol.split('/') : exists.symbol.split('-');
-
       const lastPrice = allTickers[base].info.lastPrice ? +allTickers[base].info.lastPrice : +allTickers[base].last;
-      
-      const realPrice = auxBase === 'USDT' || auxBase === 'USD' 
-        ? +exists.amount / +lastPrice
-        : +exists.amount * +lastPrice
-
-      exists.usdValue = realPrice;
+      exists.usdValue = exists.amount * lastPrice;
     }
   })
   return formatedMarket;
@@ -146,6 +116,7 @@ const getKucoinBalance = async ( userData, marketType ) => {
   }))
 
   const responseFormated = await getUsdtValue('kucoin', responseSymbol)
+  // console.log(responseFormated)
   return responseFormated;
 }
 
@@ -207,7 +178,7 @@ export const getUserCexBalance = async (req: FastifyRequest, res: FastifyReply) 
   })
 
   response.walletValue = +response.walletValue.toFixed(2);
-  response.uniqueSymbols.forEach(symbol => symbol.usdValue = symbol.usdValue / symbol.repeat );
+  response.uniqueSymbols.forEach(symbol => symbol.usdValue = symbol.usdValue / symbol.repeat )
 
   return res.send({ response });
 }

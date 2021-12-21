@@ -5,13 +5,12 @@ const getBinancePrice = async (marketType: string, symbol: string, type:string, 
   const exchange = new ccxt.binance();
   exchange.options.defaultType = marketType;
   const allMarkets = await exchange.loadMarkets();
-  
+ 
   const formattedSymbol = symbol.replace('-', '/');
-
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { info:{ lastPrice: price}, info:{ volume }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, info:{ volume }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[realSymbol];
     
     return {
@@ -43,7 +42,7 @@ const getHuobiPrice = async (marketType: string, symbol: string, type:string, us
 
 
   if(realSymbol){
-    const { ask: price, info:{ vol }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[realSymbol];
 
     return {
@@ -75,9 +74,14 @@ const getFTXPrice = async (marketType: string, symbol: string, type:string, user
   const formattedSymbol = symbol.replace('-', '/');
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
+  console.log(symbol)
+  console.log(formattedSymbol)
+  console.log('REAL SYMBOL AT FTX: ', realSymbol)
+
   if(realSymbol){
-    const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, info:{ quoteVolume24h }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[realSymbol];
+    console.log('maker and taker: ', maker, taker)
 
     return {
       exchange: 'FTX',
@@ -107,7 +111,7 @@ const getKucoinPrice = async (marketType: string, symbol: string, type:string, u
   const realSymbol = allMarkets[symbol] ? symbol : allMarkets[formattedSymbol] ? formattedSymbol : undefined
 
   if(realSymbol){
-    const { ask: price, info:{ vol }} = await exchange.fetchTicker(realSymbol);
+    const { ask: price, info:{ vol }} = await exchange.fetchTicker(symbol);
     const { maker, taker } = allMarkets[realSymbol];
     
     return {
@@ -131,6 +135,8 @@ const getKucoinPrice = async (marketType: string, symbol: string, type:string, u
 
 export const compareExchangesOperation = async (req: FastifyRequest, res: FastifyReply) => {
   const { marketType, symbol, userPriceUnit, userSize, type } = req.body as any;
+
+console.log('chegou na req symbol: ', symbol)
 
   const binanceResponse = await getBinancePrice(marketType, symbol, type, userPriceUnit, userSize);
   const huobiResponse = await getHuobiPrice(marketType, symbol, type, userPriceUnit, userSize);
