@@ -89,25 +89,6 @@ const loadKucoinOrders = async (userData) => {
   }
 };
 
-const loadGateioOrders = async (userData) => {
-  try {
-    const exchange = new ccxt.gateio();
-    exchange.apiKey = userData.apiKey;
-    exchange.secret = userData.apiSecret;
-
-    await exchange.checkRequiredCredentials(); // throw AuthenticationError
-
-    const openOrders = (await exchange.fetchOpenOrders()).map((order) => ({
-      ...order,
-      exchange: "gate.io",
-    }));
-
-    return openOrders;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 export const getUserAllOpenOrders = async (
   req: FastifyRequest,
   res: FastifyReply
@@ -160,18 +141,6 @@ export const getUserAllOpenOrders = async (
 
     if (responseKucoin) {
       response.push(...responseKucoin);
-    }
-  }
-
-  if (
-    userExchanges.find((exchange) => exchange.id.toLowerCase() === "gateio")
-  ) {
-    const responseGateio = await loadGateioOrders(
-      userExchanges.find((exchange) => exchange.id.toLowerCase() === "gateio")
-    );
-
-    if (responseGateio) {
-      response.push(...responseGateio);
     }
   }
 
