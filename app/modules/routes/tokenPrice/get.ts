@@ -2,8 +2,6 @@ import * as ccxt from "ccxt";
 import Axios from "axios";
 import { FastifyReply, FastifyRequest } from "fastify";
 
-import binanceService from "../../services/BinanceService";
-
 const UniswapV2API =
   "https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2";
 const UniswapV3API =
@@ -53,19 +51,23 @@ export const getTokenUsdtPrice = async (
       price: 1,
     });
   }
-  
-  const formattedSymbol = `${symbol}/USDT`;
+
+  const formatedSymbol = `${symbol}/USDT`;
   try {
-    const price = await binanceService.getPrice(`${symbol}usdt`);
+    const exchange = new ccxt.binance();
+    await exchange.fetchMarkets();
+    const ticker = await exchange.fetchTicker(formatedSymbol);
+
+    const symbolPrice = +ticker.ask;
     return res.send({
-      symbol: formattedSymbol,
-      price: price,
+      symbol: formatedSymbol,
+      price: symbolPrice,
     });
   } catch (err1) {
     const tokenPrice = await getPriceFromUniswap(address);
 
     return res.send({
-      symbol: formattedSymbol,
+      symbol: formatedSymbol,
       price: tokenPrice,
     });
   }
