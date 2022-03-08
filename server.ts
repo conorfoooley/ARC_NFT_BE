@@ -12,8 +12,6 @@ import { config } from "./app/config/config";
 import { router } from "./app/modules/routes";
 import { LogController } from "./app/modules/controller/LogController";
 import { FastifyReply } from "fastify";
-import * as SwaggerPlugin from 'fastify-swagger'
-
 
 process.setMaxListeners(15);
 
@@ -44,40 +42,14 @@ async function mount() {
   await app.register(cookie, {
     secret: config.jwt,
   });
- 
-  app.register( SwaggerPlugin, {
-    routePrefix: '/doc',
-    exposeRoute: true,
-    mode: 'static',
-    specification: {
-      path: './app/spec/be-spesification.json'
-    },
-    swagger: {
-    info: {
-    title: 'DEPO API',
-    description: 'REST API DEPO documentation',
-    version: '1.0.0'
-    },
-    externalDocs: {
-    url: 'https://swagger.io',
-    description: 'Find more info here'
-    },
-    host: 'staging.api.depo.io:443',
-    schemes: [
-      'http',      
-      'https'
-    ],
-    consumes: ['application/json'],
-    produces: ['application/json']      
-    }
-    });
-    
-/**
- * This hooks acts as middlewares performing
-* actions on each one of these calls
-* Logs route actions
-*/
- 
+
+  /**
+   * This hooks acts as middlewares performing
+   * actions on each one of these calls
+   * -----
+   * Logs route actions
+   */
+
   /** Checks if session is valid */
   app.addHook("onRequest", async (req, res) => {
     await SessionChecker(req, res, app);
@@ -112,7 +84,6 @@ async function mount() {
 
   return app;
 }
-
 
 config.mongodb
   .createInstance()
