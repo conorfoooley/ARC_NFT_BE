@@ -10,20 +10,21 @@ test("getSymbolUsdtPrice API test [GET] [/:symbol]", async () => {
         'Access-Control-Allow-Origin' : '*',
     },
   });
+//   
    expect(res.statusCode).toEqual(200);
 });
 
+// payload data missing
 test("getSymbolUsdtPrices API test [POST] [/]", async () => {
-  console.log('Temporarily commented because of incorrect post req.body.quotes');
-  // const res = await app.inject({
-  //   method: 'POST',
-  //   url: "http://localhost:3001/ws/v2/symbolPrice/",
-  //   headers : {
-  //       'Access-Control-Allow-Origin' : '*',
-  //   },
-  //   payload: {
-  //       quotes: ["BUSD"],
-  //   }
-  // });
-  //  expect(res.statusCode).toEqual(200);
+  const res = await app.inject({
+    method: 'POST',
+    url: "http://localhost:3001/ws/v2/symbolPrice/",
+    headers : {
+        'Access-Control-Allow-Origin' : '*',
+    },
+    payload: {
+        quotes: ["FTX","Binance"],
+    }
+  });
+   expect(res.statusCode).toEqual(200);
 });
