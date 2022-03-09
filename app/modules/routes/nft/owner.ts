@@ -8,16 +8,7 @@ import { respond } from "../../util/respond";
 /**
  * 
  * @param {*} req
- *  ownerId: string 
- * @requestBody 
- *    backgroundUrl: url background
- *    photoUrl:  url photo
- *    name: name of owner
- *  
  * @param {*} res
- *     result of owner
- *      success:  201
- *      fail:     501
  */
 export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
     // const owner:IPerson = req.body as any;
@@ -50,19 +41,6 @@ export const createOwner = async (req: FastifyRequest, res: FastifyReply) => {
 
 };
 
-/**
- * 
- * @param req 
- * ownerId: string 
- * @requestBody 
- *    backgroundUrl: url background
- *    photoUrl:  url photo
- *    name: name of owner
- * @param res 
- *      result of owner
- *      success:  201
- *      fail:     501
- */
 export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const Owner=req.body as IPerson;
     const ctl = new NFTOwnerController();
@@ -86,28 +64,7 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
 /**
  * 
  * @param {*} req
- * @queryString  
-   * filter IQuerFilter
-   *  OrderBy= fieldName 
-   *  direction=ASC/DESC, 
-   * filters :[{fieldName:@field,query:@value}]
-   
  * @param {*} res
- * Array <IPerson>
- * interface IPerson {
-  _id?: string;                   // user id
-  backgroundUrl: string;          // background image url
-  photoUrl: string;               // photo image url
-  wallet: string;                 // wallet address
-  joinedDate: Date;               // joined date
-  name: string;                   // display name
-
-  nfts: Array<INFT>;              // owned nfts
-  created: Array<INFT>;           // created nfts
-  favourites: Array<INFT>;        // favourite nfts
-  history: Array<IHistory>;       // activities of current user
-}
- * 
  */
  export const getAllOwners = async (req: FastifyRequest, res: FastifyReply) => {
     const query = req.url.split("?")[1];
@@ -117,28 +74,9 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const result = await ctl.findAllOwners(filters);
     res.send(result);
   };
-
   /**
    * @param {*} req
-   *  *    onwerId : wallet address
-   * 
-   * 
    * @param {*} res
-   * * Object <IPerson>
- * interface IPerson {
-  _id?: string;                   // user id
-  backgroundUrl: string;          // background image url
-  photoUrl: string;               // photo image url
-  wallet: string;                 // wallet address
-  joinedDate: Date;               // joined date
-  name: string;                   // display name
-
-  nfts: Array<INFT>;              // owned nfts
-  created: Array<INFT>;           // created nfts
-  favourites: Array<INFT>;        // favourite nfts
-  history: Array<IHistory>;       // activities of current user
-}
-   * 
    */
   export const getOwner= async (req: FastifyRequest, res: FastifyReply) => {
     const walletId = req.params['ownerId'] as string;
@@ -147,34 +85,12 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
 
     res.send(result);
   }
- 
-
   /**
-   * @param {*} req
-   *  *    onwerId : wallet address
-   * 
-   * 
-   * @param {*} res
-   * * Array <INFT>
- interface INFT {
-  _id?: string;                   // id of nft
-  collection: string;             // collection contract address
-  index: string;                  // index of nft in collection
-  owner: IPerson;                 // owner
-  creator: IPerson;               // creator
-  artURI: string;                 // URI of art image
-  price: number;                  // Current price of nft
-  like: number;                   // likes count of nft
-  auctionEnd?: Date;              // auction end time
-  protocol?: string;              // protocol
-  priceHistory: Array<IPrice>;    // price history list of nft
-  history: Array<IHistory>;       // history list
-  status: string;                 // status of current nft
-}
-   * 
-   */
-
- 
+ * 
+ * @param {*} req
+ * @param {*} res
+ * @param ownerId
+ */
  export const getOwnerNtfs = async (req: FastifyRequest, res: FastifyReply) => {
     const walletId = req.params['ownerId'] as string;
     const query = req.url.split("?")[1];
@@ -185,29 +101,6 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const result = await ctl.getOwnerNtfs(walletId,filters);
     res.send(result);
   };
-
-
-  /**
-   * @param {*} req
-   *  *    onwerId : wallet address
-   * 
-   * 
-   * @param {*} res
-   * * Array <IHistory>
- interface IHistory {
-  _id?: string;                   // id of activity
-  collection: string;             // collection contract address
-  nftId: string;                  // id of nft item
-  type: string;                   // type of activity (ex; list, offer, etc)
-  price: number;                  // price of activity
-  from: IPerson;                  // original owner
-  to: IPerson;                    // new owner
-  date: Date;                     // date of activity
-}
-   * 
-   */
-
-
   export const getOwnerHistory = async (req: FastifyRequest, res: FastifyReply) => {
     const walletId = req.params['ownerId'] as string;
     const query = req.url.split("?")[1];
@@ -217,29 +110,6 @@ export const updateOwner = async (req: FastifyRequest, res: FastifyReply) => {
     const result = await ctl.getOwnerHistory(walletId);
     res.send(result);
   };
-
-
-
-
-  /**
-   * @param {*} req
-   *  *    onwerId : wallet address
-   * 
-   * 
-   * @param {*} res
-   * * Array <INFTColelction>
- interface INFTCollection {
-  _id?: string;                  
-  name: string;                 // name of nft collection
-  contract: string;             // collection contract address
-  nfts: Array<INFT>;            // nft list
-  owners: Array<IPerson>;       // owner list
-  history: Array<IHistory>;     // history of collection
-  activity: Array<IBid>;        // activity of collection
-}
-   * 
-   */
-
   export const getOwnerCollection = async (req: FastifyRequest, res: FastifyReply) => {
     const walletId = req.params['ownerId'] as string;
     const query = req.url.split("?")[1];
