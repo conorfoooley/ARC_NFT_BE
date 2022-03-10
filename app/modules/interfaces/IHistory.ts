@@ -8,8 +8,8 @@ export interface IHistory {
   nftId: string;                  // id of nft item
   type: string;                   // type of activity (ex; list, offer, etc)
   price: number;                  // price of activity
-  from: string;                  // original owner
-  to: string;                    // new owner
+  from: IPerson;                  // original owner
+  to: IPerson;                    // new owner
   date: Date;                     // date of activity
 }
 

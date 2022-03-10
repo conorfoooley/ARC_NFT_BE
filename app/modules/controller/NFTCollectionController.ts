@@ -177,7 +177,6 @@ export class NFTCollectionController extends AbstractEntity {
 
     const query = this.findCollectionItem(contract);
     const findResult = await collection.findOne(query) as INFTCollection;
-    console.log(findResult);
     if (findResult && findResult._id) {
       return respond("Current collection has been created already", true, 501);
     }
@@ -208,18 +207,18 @@ export class NFTCollectionController extends AbstractEntity {
     const nftTable = this.mongodb.collection(this.nftTable);
 
     const collection = await collectionTable.findOne(this.findCollectionItem(contract)) as INFTCollection;
-    if (!collection) {
+    if (collection && collection._id) {
       return respond("Current collection has been created already", true, 501);
     }
 
     const owner = await ownerTable.findOne(this.findPerson(fromUser)) as IPerson;
-    if (!owner) {
-      return respond("Cannot find owner", true, 501);
+    if (owner && owner._id) {
+      return respond("Current owner has been created already", true, 501);
     }
 
-    const nft = await nftTable.findOne(this.findNFTItem(contract, nftId)) as INFT;
-    if (!nft) {
-      return respond("Cannot find nft", true, 501);
+    const nft = await nftTable.findOne(this.findOne(this.findNFTItem(contract, nftId))) as INFT;
+    if (nft && nft._id) {
+      return respond("Current nft has been created already", true, 501);
     }
 
     const bid : IBid = {
@@ -232,8 +231,9 @@ export class NFTCollectionController extends AbstractEntity {
     };
 
     collection.activity.push(bid);
-    collectionTable.replaceOne({contract:collection.contract}, collection);
-    return respond("Bid Success");
+    collectionTable.updateOne({_id:collection._id}, collection);
+
+    return respond("Bid Success", true, 201);
   }
   
   /**

@@ -113,13 +113,11 @@ export class NFTController extends AbstractEntity {
    * @param filters filter
    * @returns Array<INFT>
    */
-  async getItems(filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
-
+  async getItems(contract: string, filters?: IQueryFilters): Promise<Array<INFT> | IResponse> {
     try {
       if (this.mongodb) {
-        const nftTable = this.mongodb.collection(this.table);
-
-        const result = await nftTable.find().toArray();
+        const query = this.findCollection(contract);
+        const result = await this.findAll(query);
         if (result) {
           return result;
         }
@@ -153,14 +151,13 @@ export class NFTController extends AbstractEntity {
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const ownerTable = this.mongodb.collection(this.personTable);
 
-    let query = this.findNFTItem(contract, nftId);
+    const query = this.findNFTItem(contract, nftId);
     const findResult = await nftTable.findOne(query) as INFT;
     if (findResult && findResult._id) {
       return respond("Current nft has been created already", true, 501);
     }
     
-    query = this.findCollection(contract);
-    const collection = await collectionTable.findOne(query);
+    const collection = await collectionTable.findOne(this.findCollection(contract)) as IPerson;
     if (!collection) {
       return respond("collection not found.", true, 422);
     }
@@ -178,8 +175,8 @@ export class NFTController extends AbstractEntity {
     const nft : INFT = {
       collection: contract,
       index: nftId,
-      owner: owner.wallet,
-      creator: creator.wallet,
+      owner: owner,
+      creator: creator,
       artURI: artURI,
       price: price,
       like: 0,
@@ -189,24 +186,17 @@ export class NFTController extends AbstractEntity {
     }
 
     collection.nfts.push(nft);
-    collection.owners.push(owner);
-    collectionTable.replaceOne({contract: collection.contract}, collection);
+    collectionTable.updateOne({_id: collection._id}, collection);
 
-    if (owner.wallet === creator.wallet) {
-      owner.nfts.push(nft);
-      owner.created.push(nft);
-      ownerTable.replaceOne({wallet: owner.wallet}, owner);
-    } else {
-      owner.nfts.push(nft);
-      ownerTable.replaceOne({wallet: owner.wallet}, owner);
+    owner.nfts.push(nft);
+    ownerTable.updateOne({_id: owner._id}, owner);
 
-      creator.created.push(nft);
-      ownerTable.replaceOne({wallet: creator.wallet}, creator);
-    }
+    creator.created.push(nft);
+    ownerTable.updateOne({_id: nft._id}, creator);
 
     const result = await nftTable.insertOne(nft);
     return (result
-            ? respond('Successfully created a new nft with id ${result.insertedId}')
+            ? respond('Successfully created a new nft with id ${result.insertedId}', true, 201)
             : respond("Failed to create a new nft.", true, 501)); 
   }
 
@@ -233,20 +223,16 @@ export class NFTController extends AbstractEntity {
     const historyTable = this.mongodb.collection(this.historyTable);
 
     const collection = await collectionTable.findOne(this.findCollection(contract)) as INFTCollection;
-    if (!collection) {
+    if (collection && collection._id) {
       return respond("collection not found", true, 501);
     }
 
     const query = this.findNFTItem(contract, nftId);
     const nft = await nftTable.findOne(query) as INFT;
-    if (!nft) {
-      return respond("nft not found", true, 501);
+    if (nft && nft._id) {
+      return respond("Current nft has been created already", true, 501);
     }
     
-    if (nft.owner !== from) {
-      return respond("nft's owner is different from paraemter", true, 422);
-    }
-
     const fromOwner = await ownerTable.findOne(this.findPerson(from)) as IPerson;
     if (!fromOwner) {
       return respond("from owner not found.", true, 422);
@@ -257,42 +243,33 @@ export class NFTController extends AbstractEntity {
       return respond("to onwer not found.", true, 422);
     }
 
-    if (fromOwner.wallet === toOwner.wallet) {
-      return respond("old owner and new owner are same", true, 422);
-    }
-
     const history :IHistory = {
       collection: contract,
       nftId: nftId,
       type: "transfer",
       price: price,
-      from: fromOwner.wallet,
-      to: toOwner.wallet,
+      from: fromOwner,
+      to: toOwner,
       date: curDate,
     };
 
-    nft.owner = to;
-    nftTable.replaceOne({collection: contract, index: nftId}, nft);
-
     collection.history.push(history);
-    collection.owners.push(toOwner);
-    collectionTable.replaceOne({contract:collection.contract}, collection);
+    collectionTable.updateOne({_id:collection._id}, collection);
 
-    const foundResult = fromOwner.nfts.find(item => item.collection === nft.collection && item.index === nft.index);
-    const index = fromOwner.nfts.indexOf(foundResult, 0);
+    const index = fromOwner.nfts.indexOf(nft, 0);
     if (index > -1) {
       fromOwner.nfts.splice(index, 1);
     }
     toOwner.nfts.push(nft);
 
     fromOwner.history.push(history);
-    ownerTable.replaceOne({wallet: fromOwner.wallet}, fromOwner);
+    ownerTable.updateOne({_id: fromOwner._id}, fromOwner);
     toOwner.history.push(history);
-    ownerTable.replaceOne({wallet: toOwner.wallet}, toOwner);
+    ownerTable.updateOne({_id: toOwner._id}, toOwner);
 
     const result = await historyTable.insertOne(history);
     return (result
-            ? respond('Successfully created a new history with id ${result.insertedId}')
+            ? respond('Successfully created a new history with id ${result.insertedId}', true, 201)
             : respond("Failed to create a new history.", true, 501));
   }
   
@@ -315,7 +292,7 @@ export class NFTController extends AbstractEntity {
    */
    private findCollection(contract: string): Object {
     return {
-      contract: contract,
+      collection: contract,
     };
   }
 
