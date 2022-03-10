@@ -2,13 +2,7 @@ import mongoose from "mongoose";
 import { IHistory } from "./IHistory";
 import { IPerson } from "./IPerson";
 
-
-export interface INFTSimple {
-  collection: string;             // collection contract address
-  index: string;                  // index of nft in collection
-}
-
-export interface INFT extends INFTSimple {
+export interface INFT {
   _id?: string;                   // id of nft
   collection: string;             // collection contract address
   index: string;                  // index of nft in collection
@@ -30,10 +24,16 @@ export interface IPrice {
 }
 
 const INFTSchema = new mongoose.Schema<INFT>( {
-  collection: String,
+  contract: String,
   index: String,
-  owner: String,
-  creator: String,
+  owner: {
+    ref: 'Person',
+    type: mongoose.Schema.Types.ObjectId
+  },
+  creator: {
+    ref: 'Person',
+    type: mongoose.Schema.Types.ObjectId
+  },
   artURI: String,
   price: Number,
   like: Number,

@@ -18,8 +18,14 @@ const IHistorySchema = new mongoose.Schema<IHistory>( {
   nftId: String,
   type: String,
   price: Number,
-  from: String,
-  to: String,
+  from: {
+    ref: 'Person',
+    type: ObjectId
+  },
+  to: {
+    ref: 'Person',
+    type: ObjectId
+  },
   date: Date
 });
 
