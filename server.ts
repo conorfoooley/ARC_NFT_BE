@@ -50,11 +50,7 @@ async function mount() {
     mode: 'static',
     exposeRoute: true,
     specification: {
-      path: './app/spec/be-spesification.json',
-      postProcessor: function(swaggerObject) {
-        return swaggerObject
-      } , 
-      baseDir: '/app/spec',
+      path: './app/spec/be-spesification.json'
     },
     swagger: {
       info: {
