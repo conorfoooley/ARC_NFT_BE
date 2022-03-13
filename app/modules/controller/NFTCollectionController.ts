@@ -56,25 +56,20 @@ export class NFTCollectionController extends AbstractEntity {
     this.data = nft;
   }
 
-  async getCollections(filters?:IQueryFilters): Promise<IResponse> {
-    
+  async getCollections(): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
-        let aggregation = {} as any;
-        // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
-        if (filters) {
-          aggregation = this.parseFilters(filters);
-        }
-        const result = await collectionTable.aggregate(aggregation).toArray() as Array<INFTCollection>;
 
+        const result = await collectionTable.find().toArray() as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(result.map(async (collection) => {
             let volume = 0;
             let _24h = 0;
-            let floorPrice = Number.MAX_VALUE;
+            let floorPrice = 0;
             let owners = [];
+
             const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
             nfts.forEach(nft => {
               volume += nft.price;
@@ -83,16 +78,9 @@ export class NFTCollectionController extends AbstractEntity {
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
+
             return {
-              _id:collection._id,
               logoUrl: collection.logoUrl,
-              featuredUrl:collection.featuredUrl,
-              bannerUrl:collection.bannerUrl,
-              contract:collection.contract,
-              url:collection.url,
-              description:collection.description,
-              category:collection.category,
-              links:collection.links,
               name: collection.name,
               blockchain: collection.blockchain,
               volume: volume,
@@ -100,8 +88,7 @@ export class NFTCollectionController extends AbstractEntity {
               floorPrice: floorPrice,
               owners: owners.length,
               items: nfts.length,
-              isVerified: collection.isVerified,
-              isExplicit:collection.isExplicit
+              isVerified: collection.isVerified
             };
           }));
 

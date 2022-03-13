@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { NFTController } from "../../controller/NFTController";
-import { parseQueryUrl } from "../../util/parse-query-url";
 
 /**
  * Get NFT item detail information
@@ -70,13 +69,9 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
  *    Array<INFT>
  */
  export const getAllItems = async (req: FastifyRequest, res: FastifyReply) => {
-  const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTController();
-  const result = await ctl.getItems(filters);
+  const result = await ctl.getItems();
   res.send(result);
-
 };
 
 /**

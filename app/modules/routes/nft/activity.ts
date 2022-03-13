@@ -1,6 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ActivityController } from "../../controller/ActivityController";
-import { parseQueryUrl } from "../../util/parse-query-url";
 
 /**
  * Get all NFTs in collection
@@ -11,12 +10,8 @@ import { parseQueryUrl } from "../../util/parse-query-url";
  *    Array<IActivity>
  */
  export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) => {
-  const query = req.url.split("?")[1];
-  const filters=query?parseQueryUrl(query):null;
-  filters && filters.filters.length==0 && req.query['filters']?filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new ActivityController();
-  const result = await ctl.getAllActivites(filters);
-
+  const result = await ctl.getAllActivites();
   res.send(result);
 };
 

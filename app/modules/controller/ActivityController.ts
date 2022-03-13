@@ -58,14 +58,7 @@ export class ActivityController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const table = this.mongodb.collection(this.table);
-        let aggregation = {} as any;
-        
-        if (filters) {
-          aggregation = this.parseFilters(filters);
-        }
-
-        const result = await table.aggregate(aggregation).toArray() as Array<IActivity>;
-
+        const result = await table.find().toArray();
         if (result) {
           return respond(result);
         }
@@ -100,7 +93,7 @@ export class ActivityController extends AbstractEntity {
 
     const collection = await collectionTable.findOne(this.findCollectionItem(contract)) as INFTCollection;
     if (!collection) {
-      return respond("Current collection has not been created already", true, 501);
+      return respond("Current collection has been created already", true, 501);
     }
 
     const owner = await ownerTable.findOne(this.findPerson(fromUser)) as IPerson;
