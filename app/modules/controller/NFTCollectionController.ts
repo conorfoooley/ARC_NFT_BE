@@ -56,20 +56,25 @@ export class NFTCollectionController extends AbstractEntity {
     this.data = nft;
   }
 
-  async getCollections(): Promise<IResponse> {
+  async getCollections(filters?:IQueryFilters): Promise<IResponse> {
+    
     try {
       if (this.mongodb) {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
+        let aggregation = {} as any;
+        // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
+        if (filters) {
+          aggregation = this.parseFilters(filters);
+        }
+        const result = await collectionTable.aggregate(aggregation).toArray() as Array<INFTCollection>;
 
-        const result = await collectionTable.find().toArray() as Array<INFTCollection>;
         if (result) {
           const collections = await Promise.all(result.map(async (collection) => {
             let volume = 0;
             let _24h = 0;
             let floorPrice = 0;
             let owners = [];
-
             const nfts = await nftTable.find({ collection: collection.contract }).toArray() as Array<INFT>;
             nfts.forEach(nft => {
               volume += nft.price;
@@ -78,9 +83,16 @@ export class NFTCollectionController extends AbstractEntity {
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
-
             return {
+              _id:collection._id,
               logoUrl: collection.logoUrl,
+              featuredUrl:collection.featuredUrl,
+              bannerUrl:collection.bannerUrl,
+              contract:collection.contract,
+              url:collection.url,
+              description:collection.description,
+              category:collection.category,
+              links:collection.links,
               name: collection.name,
               blockchain: collection.blockchain,
               volume: volume,
@@ -88,7 +100,10 @@ export class NFTCollectionController extends AbstractEntity {
               floorPrice: floorPrice,
               owners: owners.length,
               items: nfts.length,
-              isVerified: collection.isVerified
+              isVerified: collection.isVerified,
+              isExplicit:collection.isExplicit,
+              properties: collection.properties,
+              platform: collection.platform
             };
           }));
 
@@ -115,13 +130,19 @@ export class NFTCollectionController extends AbstractEntity {
     try {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.nftTable);
+        const ownerTable = this.mongodb.collection(this.ownerTable);
 
         const query = this.findCollectionItem(contract);
         const result = await this.findOne(query) as INFTCollection;
         if (result) {
           const nfts = await nftTable.find({collection: result.contract}).toArray();
-          let owners = nfts.map(nft => nft.owner);
-          owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
+          let ownerWallets = nfts.map(nft => nft.owner);
+          ownerWallets = ownerWallets.filter((item, pos) => ownerWallets.indexOf(item) == pos);
+          let owners = [];
+          owners = await Promise.all(ownerWallets.map(async (owner) => {
+            const ownerDetail = await ownerTable.findOne({wallet: owner});
+            return ownerDetail;
+          }));
           return respond(owners);
         }
         return respond("collection not found.", true, 422);
@@ -218,7 +239,7 @@ export class NFTCollectionController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  
+
   /**
    * Create new collection - save to MongoDB 
    * It check collection is in database, then fail
@@ -248,7 +269,7 @@ export class NFTCollectionController extends AbstractEntity {
   async createCollection(contract: string, name: string, logoUrl: string, creatorAddress: string,
     featuredUrl: string, bannerUrl: string, URL: string, description: string, category: string, 
     linkSite: string, linkDiscord: string, linkInstagram: string, linkMedium: string, linkTelegram: string, 
-    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string
+    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string
     ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -301,8 +322,10 @@ export class NFTCollectionController extends AbstractEntity {
         category: category ?? '',
         explicitContent: isExplicit ? explicitContent ?? '' : '',
         links: [linkSite ?? '', linkDiscord ?? '',
-         linkInstagram ?? '', linkMedium ?? '', 
-         linkTelegram ?? '']
+        linkInstagram ?? '', linkMedium ?? '',
+        linkTelegram ?? ''],
+        platform: platform ?? 'Unknown',
+        properties: {}
       }
 
       const result = await collection.insertOne(nftCollection);
@@ -341,6 +364,7 @@ export class NFTCollectionController extends AbstractEntity {
     collection.totalVolume = 0;
     collection.owners = owners.length;
     collection.items = nfts.length;
+    collection._24h = 0;
 
     return respond(collection);
   }
