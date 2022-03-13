@@ -43,7 +43,7 @@ export class NFTController extends AbstractEntity {
   protected data: INFT;
   protected table: string = "NFT";
   private personTable: string = "Person";
-  private activityTable: string = "Activity";
+  private historyTable: string = "History";
   private nftCollectionTable: string = "NFTCollection";
   /**
    * Constructor of class
@@ -81,24 +81,22 @@ export class NFTController extends AbstractEntity {
    * Get NFT item history
    * @param collection Collection Contract Address
    * @param nftId NFT item index in collection
-   * @returns Array<IActivity>
+   * @returns Array<IHistory>
    */
-  async getItemHistory(collection: string, nftId: string): Promise<IResponse> {
+  async getItemHistory(collection: string, nftId: string): Promise<Array<IActivity> | IResponse> {
     try {
       if (this.mongodb) {
         const query = this.findNFTItem(collection, nftId);
         const result = await this.findOne(query) as INFT;
         if (result) {
-          const activityTable = this.mongodb.collection(this.activityTable);
-          const history = await activityTable.find({collection: collection, nftId: nftId, type: 'transfer'});
-          return respond(history);
+          return result.history;
         }
         return respond("nft not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(`NFTController::getItemHistory::${this.table}`, error);
+      console.log(`NFTController::getItemDetail::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -169,10 +167,10 @@ export class NFTController extends AbstractEntity {
       creator: creator.wallet,
       artURI: artURI,
       price: price,
-      name: "",
-      properties: [],
-      isLockContent: false,
-      isExplicit: false
+      like: 0,
+      priceHistory: [],
+      history: [],
+      status: "created"
     }
     // collection.nfts.push(nft);
     // const curOwner = collection.owners.find(item => item.wallet === owner.wallet);
@@ -221,7 +219,7 @@ export class NFTController extends AbstractEntity {
     const collectionTable = this.mongodb.collection(this.nftCollectionTable);
     const nftTable = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.personTable);
-    const activityTable = this.mongodb.collection(this.activityTable);
+    const historyTable = this.mongodb.collection(this.historyTable);
     const collection = await collectionTable.findOne(this.findCollection(contract)) as INFTCollection;
     if (!collection) {
       return respond("collection not found", true, 501);
@@ -276,7 +274,7 @@ export class NFTController extends AbstractEntity {
     ownerTable.replaceOne({wallet: fromOwner.wallet}, fromOwner);
     // toOwner.history.push(history);
     ownerTable.replaceOne({wallet: toOwner.wallet}, toOwner);
-    const result = await activityTable.insertOne(history);
+    const result = await historyTable.insertOne(history);
     return (result
             ? respond('Successfully created a new history with id ${result.insertedId}')
             : respond("Failed to create a new history.", true, 501));
