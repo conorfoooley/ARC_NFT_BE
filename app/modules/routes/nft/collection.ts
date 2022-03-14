@@ -58,12 +58,9 @@ export const getCollections = async (req: FastifyRequest, res: FastifyReply) => 
       }
  */
 export const getItems = async (req: FastifyRequest, res: FastifyReply) => {
-  const query = req.url.split("?")[1];
-  const filters = parseQueryUrl(query);
   const contract = req.params['contract'] as any;
-  filters.filters.length == 0 && req.query['filters'] ? filters.filters = JSON.parse(req.query['filters']) : null;
   const ctl = new NFTCollectionController();
-  const result = await ctl.getItems(contract,filters);
+  const result = await ctl.getItems(contract);
   res.send(result);
 };
 
@@ -178,7 +175,7 @@ export const getActivities = async (req: FastifyRequest, res: FastifyReply) => {
  *      fail:     501
  */
 export const createCollection = async (req: FastifyRequest, res: FastifyReply) => {
-  const { contract, name, logoUrl, creator, 
+  const { contract, name, logoUrl, creator, platform,
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
     creatorEarning, blockchain, isVerified, isExplicit, explicitContent } = req.body as any;
@@ -186,7 +183,7 @@ export const createCollection = async (req: FastifyRequest, res: FastifyReply) =
   const result = await ctl.createCollection(contract, name, logoUrl, creator, 
     featuredUrl, bannerUrl, URL, description, category, 
     linkSite, linkDiscord, linkInstagram, linkMedium, linkTelegram, 
-    creatorEarning, blockchain, isVerified, isExplicit, explicitContent);
+    creatorEarning, blockchain, isVerified, isExplicit, explicitContent, platform);
   res.send(result);
 }
 
