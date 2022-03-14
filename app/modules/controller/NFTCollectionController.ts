@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { INFT } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
@@ -197,23 +198,9 @@ export class NFTCollectionController extends AbstractEntity {
         const activityTable = this.mongodb.collection(this.activityTable);
         const nftTable = this.mongodb.collection(this.nftTable);
         const query = this.findCollectionItem(contract);
-        let aggregation = {} as any;
-        
-
-        
-
         const result = await this.findOne(query) as INFTCollection;
-
-
         if (result) {
-
-          if (filters) {
-            aggregation = this.parseFilters(filters);
-            aggregation.push({ $match: {collection:result.contract }, });
-          };
-
-          // const activities = await activityTable.find({collection: result.contract}).toArray();
-          const activities = await activityTable.aggregate(aggregation).toArray();
+          const activities = await activityTable.find({collection: result.contract}).toArray();
           const detailedActivity = await Promise.all(activities.map(async activity => {
             const nft = await nftTable.findOne({collection: activity.collection, index: activity.nftId}) as INFT;
             activity.nftObject = {artUri: nft.artURI, name: nft.name};
@@ -237,7 +224,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param filters filter
    * @returns {Array<IActivity>} history list
    */
-   async getHistory(contract: string,filters?:IQueryFilters): Promise<IResponse> {
+   async getHistory(contract: string): Promise<IResponse> {
     try {
       if (this.mongodb) {
         const activityTable = this.mongodb.collection(this.activityTable);
