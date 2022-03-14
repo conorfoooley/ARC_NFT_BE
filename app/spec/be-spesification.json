@@ -108,25 +108,15 @@
             "type":"string"
          },"explicitContent":{
             "type":"string"
-         },"platform":{
-            "type":"string"
-         },"properties": {
-            "type": "object"
-        }
-         
+         }
          
       },"required":[
-         "name",
-         "creator",
          "contract",
-         "links",
-         "creatorEarning",
+         "name",
+         "logoUrl",
          "blockchain",
-         "isVerified",
-         "isExplicit",
-         "platform",
-         "properties"
-       ]
+         "bidOn",
+         "type" ]
    },
 
    "TransferParam":{
@@ -234,7 +224,21 @@
             "type":"string"
           } 
         }
-    } ,
+    },
+    "UpdateFavoriteParam":{
+      "type":"object",
+      "properties":{ 
+          "ownerId":{
+            "type":"string"
+           },
+          "contract":{
+            "type":"string"
+          },
+          "nftId":{
+            "type":"string"
+          }      
+        }
+    },
  
 
      "IBid":{
@@ -291,7 +295,19 @@
           },
           "social": {
               "type": "string"
-          } 
+          },
+          "nfts": {
+              "type": "array",
+              "items": {
+                  "$ref": "#/definitions/INFTSimple"
+              }
+          },
+          "collections": {
+              "type": "array",
+              "items": {
+                  "type": "string"
+              }
+          }
       },
       "required": [
           "photoUrl",
@@ -371,12 +387,6 @@
              },
              "explicitContent": {
                  "type": "string"
-             },
-             "platform": {
-                 "type": "string"
-             },
-             "properties": {
-                 "type": "object" 
              }
          },
          "required": [
@@ -387,31 +397,9 @@
              "creatorEarning",
              "blockchain",
              "isVerified",
-             "isExplicit",
-             "platform",
-             "properties"
-         ] 
-     },
-     "interface-1323940878-9821-11285-1323940878-0-212510": {
-         "type": "object",
-         "properties": {
-             "prototype": {},
-             "length": {
-                 "type": "number"
-             },
-             "arguments": {},
-             "caller": {
-                 "$ref": "#/definitions/interface-1323940878-9821-11285-1323940878-0-212510"
-             }
-         },
-         "required": [
-             "prototype",
-             "length",
-             "arguments",
-             "caller"
-         ],
-         "additionalProperties": false
-     },
+             "isExplicit"
+         ]       
+       },
 
        "INFT": {
          "type": "object",
@@ -492,7 +480,8 @@
            "timestamp"
         ]
      },
-        "IActivity":{
+     
+     "IActivity":{
         "type":"object",
         "properties":{
            "_id":{
@@ -511,14 +500,10 @@
               "type":"number"
            },
            "from":{
-            "type":"string"
+              "$ref":"#/definitions/IPerson"
            },
-           
            "to":{
-            "type":"string"
-            },
-            "by":{
-               "type":"string"
+              "$ref":"#/definitions/IPerson"
            },
            "date":{
               "type":"string",
@@ -600,7 +585,8 @@
            "description":"Get owner list in collection",
            "tags":[
               "Collection"
-           ],            
+           ],
+            
            "parameters":[
               {
                  "in":"path",
@@ -634,7 +620,8 @@
            "description":"Get transfer history of NFT items in collection",
            "tags":[
               "Collection"
-           ],            
+           ],
+            
            "parameters":[
               {
                  "in":"path",
@@ -698,41 +685,6 @@
            }
         }
      },
-     "/nft/collection/{contract}":{
-      "get":{
-         "description":"Get all activities (bids and transfer) of NFT items in collection",
-         "tags":[
-            "Collection"
-         ],
-          
-         "parameters":[
-            {
-               "in":"path",
-               "name":"contract",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"Collection Contract Address"
-            }
-         ],
-         "responses":{
-            "200":{
-               "description":"Activities base on contract",
-               "content":{
-                  "application/json":{
-                     "schema":{
-                        "type":"array",
-                        "items":{
-                           "$ref":"#/definitions/INFTCollection"
-                        }
-                     }
-                  }
-               }
-            }
-         }
-      }
-   },
      "/nft/collection/create":{
         "post":{
            "description":"Create new collection and persisted to DB",
@@ -761,12 +713,43 @@
            }
         }
      },
+     "/nft/collection/placeBid":{
+        "post":{
+           "description":"Owner place a bid to the NFT item in collection",
+           "tags":[
+              "Collection"
+           ],
+           "security":[ {
+                 "bearerAuth":[ ]
+              }
+           ],
+           "requestBody":{
+              "content":{
+                 "application/json":{
+                    "schema":{
+                       "type":"object",
+                       "$ref":"#/definitions/PlaceBidParam"
+                    }
+                 }
+              }
+           },
+           "responses":{
+              "201":{
+                 "description":"success"                  
+              },
+              "501":{
+               "description":"fail"                  
+            }
+           }
+        }
+     },
 
-     "/nft/activity":{
+
+     "/nft/activities":{
       "get":{
          "description":"Get all NFTs in collection",
          "tags":[
-            "Activity"
+            "Activities"
          ],
            
          "responses":{
@@ -821,7 +804,41 @@
            }
         }
      },
-    
+     "/nft/items/transfer":{
+      "post":{
+         "description":"Transfer NFT item from old owner to new owner",
+         "tags":[
+            "Items"
+         ],
+         "security":[
+            {
+               "bearerAuth":[
+                  
+               ]
+            }
+         ],
+         "requestBody":{
+            "content":{
+               "application/json":{
+                  "schema":{
+                     "type":"object",
+                     "$ref":"#/definitions/TransferParam"
+                  }
+               }
+            }
+         },
+         "responses":{
+            "201":{
+               "description":"transfer Items with contract"       
+            },
+            "501":{
+             "description":"cannot find collection or nft"       
+           },"422":{
+             "description":"cannot find owner"       
+          }
+         }
+      }
+   },
      "/nft/items":{
       "get":{
          "description":"Get all NFTs in collection",
@@ -838,47 +855,6 @@
                       "items":{
                          "$ref":"#/definitions/INFT"
                       } 
-                     }
-                  }
-               }
-            }
-         }
-      }
-   },
-   "/nft/items/{contract}/{nftId}":{
-      "get":{
-         "description":"Get NFT item detail information",
-         "tags":[
-            "Items"
-         ], 
-         "parameters":[
-            {
-               "in":"path",
-               "name":"contract",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"Collection Contract Address"
-            },
-            {
-               "in":"path",
-               "name":"nftId",
-               "schema":{
-                  "type":"string"
-               },
-               "required":true,
-               "description":"NFT item index"
-            }
-         ],
-         "responses":{
-            "200":{
-               "description":"getItemHistory  NFT",
-               "content":{
-                  "application/json":{
-                     "schema":{
-                        "type":"object",
-                        "$ref":"#/definitions/INFT"
                      }
                   }
                }
@@ -929,7 +905,47 @@
            }
         }
      },
-     
+     "/nft/items/{contract}/{nftId}/detail":{
+        "get":{
+           "description":"Get NFT item detail information",
+           "tags":[
+              "Items"
+           ], 
+           "parameters":[
+              {
+                 "in":"path",
+                 "name":"contract",
+                 "schema":{
+                    "type":"string"
+                 },
+                 "required":true,
+                 "description":"Collection Contract Address"
+              },
+              {
+                 "in":"path",
+                 "name":"nftId",
+                 "schema":{
+                    "type":"string"
+                 },
+                 "required":true,
+                 "description":"NFT item index"
+              }
+           ],
+           "responses":{
+              "200":{
+                 "description":"getItemHistory  NFT",
+                 "content":{
+                    "application/json":{
+                       "schema":{
+                          "type":"object",
+                          "$ref":"#/definitions/INFT"
+                       }
+                    }
+                 }
+              }
+           }
+        }
+     },
      
     
      "/nft/owners":{
