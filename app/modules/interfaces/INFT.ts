@@ -24,12 +24,11 @@ export interface INFT extends INFTSimple {
   price: number;
   externalLink?: string;
   description?: string;
-  properties: Object;
+  properties: Array<IProperty>;
   isLockContent: boolean;
   lockContent?: string;
   isExplicit: boolean;         // explicit flag
   explicitContent?: string;
-  status?: string;                 // For Sale, Buy Now
 }
 
 export interface IPrice {
