@@ -105,19 +105,18 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner == buyer) {
             return respond("destination wallet is nft's owner", true, 422);
           }
-          const status_date=new Date().getTime();
+
           const transfer: IActivity = {
             collection: contract,
             nftId: nftId,
             type: "Transfer",
-            date: status_date,
+            date: new Date().getTime(),
             from: seller,
             to: buyer
           }
 
           nft.status = "Transfer";
           nft.owner = buyer;
-          nft.status_date=status_date;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           const result = await activityTable.insertOne(transfer);
@@ -160,14 +159,13 @@ export class ActivityController extends AbstractEntity {
           if (offer.to != buyer) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
-          const status_date=new Date().getTime();
+
           nft.status = "Sold";
           nft.owner = buyer;
-          nft.status_date=status_date;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
-          
+
           offer.type = "Sold";
-          offer.date = status_date;
+          offer.date = new Date().getTime();
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), offer);
           return (result                  
             ? respond(`Successfully created a new sold with id ${activityId}`)
@@ -206,7 +204,7 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
-          
+
           const offer: IActivity = {
             collection: contract,
             nftId: nftId,
@@ -261,9 +259,7 @@ export class ActivityController extends AbstractEntity {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
 
-          const status_date=new Date().getTime();
           nft.status = "For Sale";
-          nft.status_date=status_date;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           const offer: IActivity = {
@@ -271,7 +267,7 @@ export class ActivityController extends AbstractEntity {
             nftId: nftId,
             type: "List",
             price: price,
-            startDate: status_date,
+            startDate: new Date().getTime(),
             endDate: endDate,
             from: seller,
             fee: fee
@@ -321,9 +317,8 @@ export class ActivityController extends AbstractEntity {
           if (cancelList.from !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
-          const status_date=new Date().getTime();
+
           nft.status = "Minted";
-          nft.status_date=status_date;
           await nftTable.replaceOne(this.findNFTItem(contract, nftId), nft);
 
           cancelList.type = "Canceled";
