@@ -280,8 +280,6 @@ export class NFTController extends AbstractEntity {
     lockContent?: string,
     isExplicit?: boolean, // explicit flag
     explicitContent?: string,
-    royalties?:number,
-    tokenType?:string,
     properties?: object
   ): Promise<IResponse> {
     const nftTable = this.mongodb.collection(this.table);
@@ -321,8 +319,6 @@ export class NFTController extends AbstractEntity {
       description: description ?? "",
       isLockContent: isLockContent ?? false,
       isExplicit: isExplicit ?? false,
-      royalties:royalties??0,
-      tokenType:tokenType??"",
       status: "Minted",
       status_date: new Date().getTime(),
       properties: properties ?? {},

@@ -15,8 +15,6 @@ export interface INFT {
   lockContent?: string;           // content
   isExplicit: boolean;            // explicit flag
   explicitContent?: string;       // explicit content
-  royalties?:number,              // royalties
-  tokenType?:string,              // eq ERC721 or ERC 1155
   status?: string;                // For Sale, Minted, Sold,
   status_date?:number
 }
