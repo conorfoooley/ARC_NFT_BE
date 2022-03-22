@@ -1,4 +1,5 @@
 import { AbstractEntity } from "../abstract/AbstractEntity";
+import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
@@ -60,6 +61,7 @@ export class NFTCollectionController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
+        const activityTable = this.mongodb.collection(this.activityTable);
 
         let aggregation = {} as any;
         // const result = await collectionTable.find().toArray() as Array<INFTCollection>;
@@ -81,6 +83,30 @@ export class NFTCollectionController extends AbstractEntity {
               if (owners.indexOf(nft.owner) == -1)
                 owners.push(nft.owner);
             });
+
+            const soldList = await activityTable.find({collection: collection.contract}).toArray() as Array<IActivity>;
+
+            let yesterDayTrade = 0;
+            let todayTrade = 0;
+            const todayDate = new Date();
+            const yesterdayDate = new Date(todayDate.getTime());
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const dayBeforeDate = new Date(todayDate.getTime());
+            dayBeforeDate.setDate(dayBeforeDate.getDate() - 2);
+
+            soldList.forEach(sold => {
+              if (sold.date > yesterdayDate.getTime() / 1000) 
+                todayTrade += sold.price;
+              else if (sold.date > dayBeforeDate.getTime() / 1000)
+                yesterDayTrade += sold.price;
+            });
+
+            if (todayTrade == 0)
+              _24h = 0;
+            else if (yesterDayTrade == 0)
+              _24h = 100;
+            else
+              _24h = todayTrade / yesterDayTrade * 100;
 
             const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
             return {
@@ -358,7 +384,7 @@ export class NFTCollectionController extends AbstractEntity {
   async createCollection(contract: string, name: string, logoUrl: string, creatorAddress: string,
     featuredUrl: string, bannerUrl: string, URL: string, description: string, category: string, 
     linkSite: string, linkDiscord: string, linkInstagram: string, linkMedium: string, linkTelegram: string, 
-    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string
+    creatorEarning: number, blockchain: string, isVerified: boolean, isExplicit: boolean, explicitContent: string, platform: string, properties: string
     ): Promise<IResponse> {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
@@ -406,7 +432,7 @@ export class NFTCollectionController extends AbstractEntity {
         linkInstagram ?? '', linkMedium ?? '',
         linkTelegram ?? ''],
         platform: platform ?? 'Unknown',
-        properties: {}
+        properties: JSON.parse(properties)
       }
       const result = await collection.insertOne(nftCollection);
       return (result
