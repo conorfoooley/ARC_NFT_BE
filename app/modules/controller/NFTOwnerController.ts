@@ -74,11 +74,7 @@ export class NFTOwnerController extends AbstractEntity {
    * @returns `IPerson`
    */
   async findPerson(personId: string): Promise<IPerson | IResponse> {
-
-
-
     const query = this.findUserQuery(personId);
-    const personTable = this.mongodb.collection(this.table);
     const result = await this.findOne(query);
     const nftTable = this.mongodb.collection(this.nftTable);
     const collection =  this.mongodb.collection(this.collectionTable);
@@ -87,7 +83,8 @@ export class NFTOwnerController extends AbstractEntity {
     }).count();
     const colls = await collection.find({
       creator:personId
-    }).count();  
+    }).count();
+    
     if (result) {
       return respond({
         _id:result._id,                         
@@ -99,18 +96,8 @@ export class NFTOwnerController extends AbstractEntity {
         nfts:ntfs,
         collections:colls
       });
-    }else{
-      await personTable.insertOne({
-        wallet:personId,
-        photoUrl:"",
-        social:"",
-        bio:"",
-        username: ""
-      });
-      const result = await this.findOne(query);
-      return respond(result);
     }
-    
+    return respond("Person not found.", true, 422);
   }
   /**
    * 
@@ -142,8 +129,6 @@ export class NFTOwnerController extends AbstractEntity {
       // history: [],
       
     }
-
-
     const result = await collection.insertOne(person);
     return (result
       ? respond(`Successfully created a new owner with id ${result.insertedId}`, false, 201)
