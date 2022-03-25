@@ -160,11 +160,19 @@ export const createItem = async (req, res) => {
     Object.keys(req.body).map((key) => [key, req.body[key].value])
   );
 
-  // const artFile =artBody?await uploadImageBase64({name:req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf(".")),img:artBody}):'';
-  
-  body.artFile= artBody;
-  body.artName= req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf("."));
-  
+  const artFile =artBody?await uploadImageBase64({name:req.body.artFile.filename.substring(0, req.body.artFile.filename.lastIndexOf(".")),img:artBody}):'';
+
+  body.artFile= artFile;
+
+  // const {, 
+  //   name,
+  //   externalLink, 
+  //   description, 
+  //   collectionId, 
+  //   properties,
+  //   unlockableContent,
+  //   isExplicit,
+  //   tokenType} = req.body as any;
   const ctl = new NFTController();
   const result = await ctl.createNFT(
     body.artFile, 
@@ -175,8 +183,7 @@ export const createItem = async (req, res) => {
     body.properties,
     body.unlockableContent,
     body.isExplicit,
-    body.tokenType,
-    body.artName
+    body.tokenType
   );
   res.send(result);
 };
