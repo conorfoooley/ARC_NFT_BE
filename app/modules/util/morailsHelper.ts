@@ -1,10 +1,8 @@
-
-import { config } from "../../config/config";
+// import { Moralis } from "moralis";
 const Moralis = require('moralis/node');
-
-const serverUrl = config.moralis.server_url||"https://jwksmmpbgzix.usemoralis.com:2053/server";
-const appId = config.moralis.appid|| "3D0QHtYtj2MW6zTtsVwHMLFjclv9NIbxfaXsOLw9";
-const masterKey = config.moralis.master_key||"zal41dCVEObOt0OAk5ZreGyKWuDv1ThbouLCeWtL";
+const serverUrl = "https://jwksmmpbgzix.usemoralis.com:2053/server";
+const appId = "3D0QHtYtj2MW6zTtsVwHMLFjclv9NIbxfaXsOLw9";
+const masterKey = "zal41dCVEObOt0OAk5ZreGyKWuDv1ThbouLCeWtL";
 
 export const uploadImage = async(data) => {
   await Moralis.start({ serverUrl, appId, masterKey });
