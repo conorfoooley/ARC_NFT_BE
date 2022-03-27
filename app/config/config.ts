@@ -74,6 +74,16 @@ const config = {
       },
     };
   },
+  aws:{
+    s3_user_bucket:process.env['AWS_S3_USER_BUCKET'],
+    s3_key:process.env['AWS_S3_KEY'],
+    s3_secret:process.env['AWS_S3_SECRET']
+  },
+  moralis:{
+    server_url:process.env['MORALIS_URL'],
+    appid:process.env['MORALIS_APPID'],
+    master_key:process.env['MORALIS_MASTER_KEY'],
+  }
 };
 
 export { config };
