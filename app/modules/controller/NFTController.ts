@@ -1,14 +1,13 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
-import { INFT, TokenType } from "../interfaces/INFT";
+import { ContentType, INFT, TokenType } from "../interfaces/INFT";
 import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
-import { dateDiff } from "../util/datediff-helper";
 
 /**
  * This is the NFT controller class.
@@ -82,6 +81,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(`NFTController::getItemDetail::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -113,6 +113,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(`NFTController::getItemHistory::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -141,6 +142,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(`NFTController::getItemOffers::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -155,7 +157,6 @@ export class NFTController extends AbstractEntity {
       if (this.mongodb) {
         const nftTable = this.mongodb.collection(this.table);
         const collTable = this.mongodb.collection(this.nftCollectionTable);
-        const acttable = this.mongodb.collection(this.activityTable);
         // const result = await nftTable.find().toArray();
         let aggregation = {} as any;
         if (filters) {
@@ -167,26 +168,6 @@ export class NFTController extends AbstractEntity {
         if (result) {
           const resultsNFT = await Promise.all(
             result.map(async (item) => {
-
-              const act = await acttable.findOne(
-                {
-                  collection: item.collection,
-                  nftId: item.index,
-                },
-                  {
-                    limit: 1,
-                    sort: {
-                      startDate: -1,
-                    },
-                  }
-              );
-              
-
-              let timeDiff='';
-              if (act && act.endDate){
-                  timeDiff =dateDiff(new Date().getTime(),act.endDate);
-              };
-              item.timeLeft=timeDiff;
               const collection = (await collTable.findOne({
                 contract: item.collection,
               })) as INFTCollection;
@@ -207,6 +188,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(`NFTController::getItems::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -269,6 +251,7 @@ export class NFTController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
+      console.log(`NFTController::getTrendingItems::${this.table}`, error);
       return respond(error.message, true, 500);
     }
   }
@@ -298,8 +281,8 @@ export class NFTController extends AbstractEntity {
     unlockableContent,
     isExplicit,
     tokenType,
-    artName
-
+    artName,
+    contentType
   ): Promise<IResponse> {
 
     const nftTable = this.mongodb.collection(this.table);
@@ -350,7 +333,8 @@ export class NFTController extends AbstractEntity {
       status_date: new Date().getTime(),
       properties: JSON.parse(properties) ?? {},
       lockContent: unlockableContent,
-      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155
+      tokenType: tokenType == 'ERC721' ? TokenType.ERC721 : TokenType.ERC1155,
+      contentType: contentType === 'Music' ? ContentType.MUSIC : contentType === 'Image' ? ContentType.IMAGE : contentType === 'VIDEO' ? ContentType.VIDEO : ContentType.OTHER
     };
 
     const result = await nftTable.insertOne(nft);
