@@ -85,21 +85,6 @@ class TextHelper {
     );
     return opts?.asArray ? result : result.join(opts?.glue ?? " ");
   }
-
-
-  /**
-   * Check only allows Alpanumeric and hypens
-   * Return boolean
-   */
-  static checkAlpanumericHypens(text: string) {
-    const regexp = /^[a-zA-Z0-9-_]+$/;
-    let check = text;
-    if (check.search(regexp) === -1) {
-      return true
-    }
-    else
-      return false;
-  }
 }
 
 export default TextHelper;

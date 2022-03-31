@@ -9,7 +9,6 @@ import { IQueryFilters } from "../interfaces/Query";
 import { respond } from "../util/respond";
 import { uploadImage, uploadImageBase64 } from "../util/morailsHelper";
 import { dateDiff } from "../util/datediff-helper";
-import { v4 } from "uuid";
 
 /**
  * This is the NFT controller class.
@@ -130,11 +129,10 @@ export class NFTController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.table);
         const activityTable = this.mongodb.collection(this.activityTable);
         const query = this.findNFTItem(collection, nftId);
-        const result = await nftTable.findOne(query) as INFT;
-        console.log(result);
+        const result = (await nftTable.findOne(query)) as INFT;
         if (result) {
           const offers = await activityTable
-            .find({ collection: collection, nftId:nftId, type: "Offer" })
+            .find({ collection: collection, type: "Offer" })
             .toArray();
           return respond(offers);
         }
@@ -301,8 +299,7 @@ export class NFTController extends AbstractEntity {
     isExplicit,
     tokenType,
     artName,
-    contentType,
-    owner,
+    contentType
   ): Promise<IResponse> {
 
     const nftTable = this.mongodb.collection(this.table);
@@ -335,14 +332,14 @@ export class NFTController extends AbstractEntity {
     }
 
 
-    const uuid = v4();
+    
     
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: uuid,
-      owner:owner,
-      creator: owner,
+      index: "0",
+      owner: '',
+      creator: '',
       artURI: artIpfs,
       price: 0,
       name: name ?? "",

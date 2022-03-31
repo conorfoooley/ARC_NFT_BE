@@ -152,12 +152,6 @@ export const createItem = async (req, res) => {
     throw new Error("artURI is invalid or missing");
   }
 
-  const user = req['session'] as any;
-  // if (walletId.toLowerCase() !== user?.walletId.toLowerCase()) {
-  //   res.code(403)
-  //   .send('Forbidden');
-  // }
-  
   let artBody:any=null;
   
   if (req.body && req.body.artFile && req.body.artFile.value!==''){
@@ -186,10 +180,7 @@ export const createItem = async (req, res) => {
     body.isExplicit,
     body.tokenType,
     body.artName,
-    body.contentType,
-    user?.walletId.toLowerCase()
-
-
+    body.contentType
   );
   res.send(result);
 };
