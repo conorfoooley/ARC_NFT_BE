@@ -90,8 +90,10 @@ export class NFTController extends AbstractEntity {
           );
           let timeDiff='';
           if (act && act.endDate){
-            timeDiff = dateDiff(new Date().getTime(),act.endDate);
-          };
+            timeDiff =dateDiff(new Date().getTime(),act.endDate);
+        };
+
+
 
           result.timeLeft=timeDiff;
           result.ownerDetail = owner;
