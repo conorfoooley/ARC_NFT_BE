@@ -170,7 +170,7 @@ export class NFTController extends AbstractEntity {
             .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
             .toArray();
           
-          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION}).toArray();
+          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION});
 
           return respond(offersIndividual.concat(offersCollection));
         }
@@ -218,6 +218,7 @@ export class NFTController extends AbstractEntity {
                     },
                   }
               );
+              
 
               let timeDiff='';
               if (act && act.endDate){
@@ -229,9 +230,7 @@ export class NFTController extends AbstractEntity {
                   collection: item.collection,
                   type: ActivityType.OFFERCOLLECTION
                 }) as IActivity;
-
-                if (collectionAct && collectionAct.endDate)
-                  timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+                timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
               }
 
               item.timeLeft=timeDiff;
@@ -388,12 +387,26 @@ export class NFTController extends AbstractEntity {
     }
 
 
-    const uuid = v4();
+    const sortNft = await nftTable.findOne({
+    },{
+      limit: 1,
+      sort: {
+        // timestamp: -1,
+        nftId: -1,
+      },
+    })
+
+  console.log(sortNft);
+    // const uuid = v4();
+
+    let nId =sortNft.index && Number(sortNft.index) ?Number(sortNft.index):0;
+
+    console.log('--->>>>>>',nId);
     
     // const url = await uploadImage(artFile);
     const nft: INFT = {
       collection: collection.contract,
-      index: uuid,      
+      index: (nId+1).toString(),
       owner:owner,
       creator: owner,
       artURI: artIpfs,
