@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
 import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
-import { INFTCollection, OfferStatusType } from "../interfaces/INFTCollection";
+import { INFTCollection } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
 import { IResponse } from "../interfaces/IResponse";
 import { IQueryFilters } from "../interfaces/Query";
@@ -219,8 +219,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               isVerified: collection.isVerified,
               isExplicit:collection.isExplicit,
               properties: collection.properties,
-              platform: collection.platform,
-              offerStatus: collection.offerStatus
+              platform: collection.platform
             };
           }));
           return respond(collections);
@@ -234,7 +233,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-  
   async getTopCollections(filters?:IQueryFilters): Promise<IResponse> {
     try {
       if (this.mongodb) {
@@ -286,8 +284,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
               isVerified: collection.isVerified,
               isExplicit:collection.isExplicit,
               properties: collection.properties,
-              platform: collection.platform,
-              offerStatus: collection.offerStatus,
+              platform: collection.platform
             };
           }));
           return respond(collections.sort((item1, item2) => item2.volume - item1.volume).slice(0, 10));
@@ -301,7 +298,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get owner list in collection
    * 
@@ -336,7 +332,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get item list in collection
    * 
@@ -373,7 +368,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get all activities (bids and transfer) of NFT items in collection
    * 
@@ -411,7 +405,6 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
       return respond(error.message, true, 500);
     }
   }
-
   /**
    * Get transfer history of NFT items in collection
    * 
@@ -537,8 +530,7 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
         instagramUrl ?? '', mediumUrl ?? '',
         telegramUrl ?? ''],
         platform: 'Unknown',
-        properties: {},
-        offerStatus: OfferStatusType.NONE
+        properties: {}
       }
       const result = await collection.insertOne(nftCollection);
       if (result)
@@ -560,32 +552,25 @@ async searchCollectionsItems(keyword:string,filters:IQueryFilters): Promise< voi
     const nftTable = this.mongodb.collection(this.nftTable);
     const activityTable = this.mongodb.collection(this.activityTable);
     const ownerTable = this.mongodb.collection(this.ownerTable);
-
     const collection = await collectionTable.findOne(this.findCollectionItem(contract));
     if (!collection) {
       return respond("collection not found", true, 501);
     }
-
     const activities = await activityTable.find({collection: contract}).toArray();
     collection.activities = activities;
-    
     const nfts = await nftTable.find({collection: contract}).toArray();
     collection.nfts = nfts;
-    
     let owners = nfts.map(nft => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
-    
     collection.floorPrice = 0;
     collection.totalVolume = 0;
     collection.owners = owners.length;
     collection.items = nfts.length;
-    
     const {_24h, todayTrade} = await this.get24HValues(contract);
     collection._24h = todayTrade;
     collection._24hPercent = _24h;
     const creator = await ownerTable.findOne(this.findPerson(collection.creator)) as IPerson;
     collection.creatorDetail = creator;
-    
     return respond(collection);
   }
   /**
