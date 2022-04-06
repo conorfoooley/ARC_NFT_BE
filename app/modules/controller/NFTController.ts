@@ -99,8 +99,7 @@ export class NFTController extends AbstractEntity {
               collection: result.collection,
               type: ActivityType.OFFERCOLLECTION
             }) as IActivity;
-            if (collectionAct && collectionAct.endDate)
-              timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
+            timeDiff = dateDiff(new Date().getTime(), collectionAct.endDate);
           }
 
           result.timeLeft=timeDiff;
@@ -171,7 +170,7 @@ export class NFTController extends AbstractEntity {
             .find({ collection: collection, nftId:nftId, type: ActivityType.OFFER })
             .toArray();
           
-          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION}).toArray();
+          const offersCollection = await activityTable.find({collection: collection, type: ActivityType.OFFERCOLLECTION});
 
           return respond(offersIndividual.concat(offersCollection));
         }
