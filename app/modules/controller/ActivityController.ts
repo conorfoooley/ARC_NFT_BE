@@ -52,6 +52,7 @@ export class ActivityController extends AbstractEntity {
     super();
     this.data = activity;
   }
+
   /**
    * Get all NFTs in collection
    * @param filters filter
@@ -75,7 +76,7 @@ export class ActivityController extends AbstractEntity {
                 index: activity.nftId,
               })) as INFT;
               // activity.nftObject = {artUri: nft.artURI, name: nft.name};
-              activity.nft = { artUri: nft?.artURI, name: nft?.name };
+              activity.nft = { artUri: nft.artURI, name: nft.name };
               return activity;
             })
           );
@@ -90,6 +91,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async transfer(collectionId: string, index: number, seller: string, buyer: string) {
     try {
       if (this.mongodb) {
@@ -130,6 +132,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async approveOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
     try {
       if (this.mongodb) {
@@ -140,6 +143,7 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
+
           const offer = (await activityTable.findOne(this.findActivtyWithId(activityId))) as IActivity;
           if (!offer || offer.collection !== collectionId || offer.nftId !== index) {
             return respond("Offer id is invalid", true, 422);
@@ -150,12 +154,14 @@ export class ActivityController extends AbstractEntity {
           if (offer.to != buyer) {
             return respond("buyer isnt offer's buyer", true, 422);
           }
+
           if (offer.type === ActivityType.OFFERCOLLECTION) {
             const status_date = new Date().getTime();
             nft.status = "Sold";
             nft.owner = buyer;
             nft.status_date = status_date;
             await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+
             const sold: IActivity = {
               collection: collectionId,
               nftId: index,
@@ -164,6 +170,7 @@ export class ActivityController extends AbstractEntity {
               from: seller,
               to: buyer,
             };
+
             const result = await activityTable.insertOne(sold);
             return result
               ? respond(`Successfully created a new transfer with id ${result.insertedId}`)
@@ -191,6 +198,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async makeOffer(collectionId: string, index: number, seller: string, buyer: string, price: number, endDate: number) {
     try {
       if (this.mongodb) {
@@ -241,6 +249,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async makeCollectionOffer(collectionId: string, seller: string, buyer: string, price: number, endDate: number) {
     try {
       if (this.mongodb) {
@@ -307,16 +316,19 @@ export class ActivityController extends AbstractEntity {
         if (price <= 0) {
           return respond("price cannot be negative or zero", true, 422);
         }
+
         const startDate = new Date().getTime();
         // console.log(startDate, endDate, startDate > endDate);
         if (startDate > endDate) {
           return respond("start date cannot be after enddate", true, 422);
         }
+
         const activityTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const collTable = this.mongodb.collection(this.collectionTable);
         const nft = (await nftTable.findOne(this.findNFTItem(collectionId, index))) as INFT;
         const sortAct = await activityTable.findOne({}, { limit: 1, sort: { nonce: -1 } });
+
         if (nft) {
           if (nft.owner.toLowerCase() !== seller.toLowerCase()) {
             return respond("seller isnt nft's owner.", true, 422);
@@ -324,11 +336,13 @@ export class ActivityController extends AbstractEntity {
           if (nft.status === "For Sale") {
             return respond("Current NFT is already listed for sale.", true, 422);
           }
+
           const status_date = new Date().getTime();
           nft.status = "For Sale";
           nft.status_date = status_date;
           const nonce = sortAct ? sortAct.nonce + 1 : 0;
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+
           const offer: IActivity = {
             collection: collectionId,
             nftId: index,
@@ -346,9 +360,11 @@ export class ActivityController extends AbstractEntity {
             const findData = await activityTable.findOne({
               _id: new ObjectId(`${result.insertedId}`),
             });
+
             const collectionData = await  collTable.findOne({
               _id: new ObjectId(findData.collection),
             })
+
             findData.collectionId = findData.collection;
             findData.collection=collectionData.contract;
             return respond({
@@ -358,6 +374,7 @@ export class ActivityController extends AbstractEntity {
             return respond("Failed to create a new activity.", true, 501);
           }
         }
+
         return respond("nft not found.", true, 422);
       } else {
         throw new Error("Could not connect to the database.");
@@ -367,6 +384,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async cancelListForSale(collectionId: string, index: number, seller: string, activityId: string) {
     try {
       if (this.mongodb) {
@@ -390,12 +408,16 @@ export class ActivityController extends AbstractEntity {
           if (cancelList.from !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
+
           const status_date = new Date().getTime();
           nft.status = "Minted";
           nft.status_date = status_date;
+
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
+
           cancelList.type = ActivityType.CANCELED;
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), cancelList);
+
           return result ? respond("List for sale canceled") : respond("Failed to create a new activity.", true, 501);
         }
         return respond("nft not found.", true, 422);
@@ -407,6 +429,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async cancelOffer(collectionId: string, index: number, seller: string, buyer: string, activityId: string) {
     try {
       if (this.mongodb) {
@@ -417,10 +440,12 @@ export class ActivityController extends AbstractEntity {
           if (nft.owner !== seller) {
             return respond("seller isnt nft's owner.", true, 422);
           }
+
           const cancelList = (await activityTable.findOne(this.findActivtyWithId(activityId))) as IActivity;
           if (!cancelList) {
             return respond("activity not found.", true, 422);
           }
+
           if (
             cancelList.collection !== collectionId ||
             cancelList.nftId !== index ||
@@ -429,9 +454,11 @@ export class ActivityController extends AbstractEntity {
           ) {
             return respond("Invalid activity Id", true, 422);
           }
+
           if (cancelList.from !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
+
           cancelList.type = ActivityType.CANCELED;
           const result = await activityTable.replaceOne(this.findActivtyWithId(activityId), cancelList);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
@@ -445,6 +472,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async cancelCollectionOffer(collectionId: string, seller: string) {
     try {
       if (this.mongodb) {
@@ -455,17 +483,21 @@ export class ActivityController extends AbstractEntity {
           if (collection.creator !== seller) {
             return respond("seller isnt nft's creator.", true, 422);
           }
+
           const cancelList = (await activityTable.findOne(
             this.findActivityWithCollectionId(collectionId)
           )) as IActivity;
           if (!cancelList) {
             return respond("activity not found.", true, 422);
           }
+
           if (cancelList.from !== seller) {
             return respond("seller isnt activity's owner.", true, 422);
           }
+
           collection.offerStatus = OfferStatusType.CANCELED;
           await collectionTable.replaceOne(this.findCollectionById(collection._id), collection);
+
           cancelList.type = ActivityType.CANCELED;
           const result = await activityTable.replaceOne(this.findActivtyWithId(cancelList._id), cancelList);
           return result ? respond("Offer canceled") : respond("Failed to create a new activity.", true, 501);
@@ -479,6 +511,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+
   async signOffer(id: string, r: string, s: string, v: string) {
     try {
       if (this.mongodb) {
@@ -487,6 +520,7 @@ export class ActivityController extends AbstractEntity {
         if (actData) {
           actData.signature = { r, s, v };
           const result = await activityTable.replaceOne(this.findActivtyWithId(id), actData);
+
           return result ? respond("Sing offer update") : respond("Failed to update activity.", true, 501);
         }
         return respond("activity not found.", true, 422);
@@ -498,45 +532,7 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
-  async deleteActivity(
-    activityId: string,
-  ) {
-    try {
-      if (!ObjectId.isValid(activityId)) {
-        return respond("Invalid activityId ", true, 422);
-      }
-      if (this.mongodb) {
-        const activityTable = this.mongodb.collection(this.table);
-        const nftTable = this.mongodb.collection(this.nftTable);
-        const collTable = this.mongodb.collection(this.collectionTable);
-        const activityData = await nftTable.findOne({_id:new ObjectId(activityId)});
-        if (!activityData){
-          return respond('Activity not found',true,422);
-        }
-        if (activityData?.type!==ActivityType.LISTFORSALE || activityData?.type!==ActivityType.NONE || activityData?.type!==ActivityType.MINTED ){
-          return respond('Cannot delete this Activity',true,422);
-        };
-        const nftData= (await nftTable.findOne(this.findNFTItem(activityData.collection, activityData.nftId))) as INFT;
-        if (!nftData){
-          return respond('Items not Found',true,422)
-        }
-          const status_date = new Date().getTime();
-          nftData.status = "Created";
-          nftData.status_date = status_date;
-          //
-          const result = await activityTable.remove({_id:new ObjectId(activityId)});
-          await nftTable.replaceOne(this.findNFTItem(activityData.collection, activityData.nftId), nftData);
-          return result
-            ? respond(`Activity with  id ${activityId} has been removed`)
-            : respond("Failed to remove  activity.", true, 501);
-      } else {
-        throw new Error("Could not connect to the database.");
-      }
-    } catch (error) {
-      console.log(`ActivityController::deleteActivity::${this.table}`, error);
-      return respond(error.message, true, 500);
-    }
-  }
+
   /**
    * Mounts a generic query to find a activity by id.
    * @param contract
@@ -547,6 +543,7 @@ export class ActivityController extends AbstractEntity {
       _id: new ObjectId(activtyId),
     };
   }
+
   /**
    * Mounts a generic query to find a activity by collection id.
    * @param contract
@@ -558,6 +555,7 @@ export class ActivityController extends AbstractEntity {
       type: ActivityType.OFFERCOLLECTION,
     };
   }
+
   /**
    * Mounts a generic query to find a activity by collection id.
    * @param contract
@@ -569,6 +567,7 @@ export class ActivityController extends AbstractEntity {
       type: ActivityType.OFFERCOLLECTION,
     };
   }
+
   /**
    * Mounts a generic query to find a collection by id.
    * @param contract
@@ -579,6 +578,7 @@ export class ActivityController extends AbstractEntity {
       _id: new ObjectId(collectionId),
     };
   }
+
   /**
    * Mounts a generic query to find a NFT item by contract address and index.
    * @param collectionId
