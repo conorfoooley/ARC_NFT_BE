@@ -108,8 +108,8 @@ export const signOffer = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const deleteActivityId = async(req: FastifyRequest, res: FastifyReply) => {
 
-  const {id} = req.params as any;
+  const {activityId} = req.params as any;
   const ctl = new ActivityController();
-  const result= await ctl.deleteActivity(id);
+  const result= await ctl.deleteActivity(activityId);
   res.send(result);
 }
