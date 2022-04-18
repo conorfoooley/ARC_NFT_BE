@@ -1,6 +1,6 @@
 import { ObjectId } from "mongodb";
 import { AbstractEntity } from "../abstract/AbstractEntity";
-import { ActivityType, IActivity } from "../interfaces/IActivity";
+import { IActivity } from "../interfaces/IActivity";
 import { INFT } from "../interfaces/INFT";
 import { INFTCollection, OfferStatusType } from "../interfaces/INFTCollection";
 import { IPerson } from "../interfaces/IPerson";
@@ -67,6 +67,7 @@ export class NFTCollectionController extends AbstractEntity {
         const collectionTable = this.mongodb.collection(this.table);
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
+        
         let SK = keyword.split(" ");
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {          
@@ -103,14 +104,19 @@ export class NFTCollectionController extends AbstractEntity {
               let floorPrice = 0;
               let owners = [];
               const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
+
               nfts.forEach((nft) => {
                 volume += nft.price;
                 if (floorPrice > nft.price) floorPrice = nft.price;
                 if (owners.indexOf(nft.owner) == -1) owners.push(nft.owner);
               });
+
+
+
+
+
               const { _24h, todayTrade } = await this.get24HValues(collection.contract);
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
-              floorPrice= await this.getFloorPrice(`${collection._id}`)
               return {
                 _id: collection._id,
                 logoUrl: collection.logoUrl,
@@ -193,7 +199,7 @@ export class NFTCollectionController extends AbstractEntity {
               let volume = 0;
               let floorPrice = 0;
               let owners = [];
-              const nfts = (await nftTable.find({ collection: `${collection._id}` }).toArray()) as Array<INFT>;
+              const nfts = (await nftTable.find({ collection: collection.contract }).toArray()) as Array<INFT>;
               nfts.forEach((nft) => {
                 volume += nft.price;
                 if (floorPrice > nft.price) floorPrice = nft.price;
@@ -201,7 +207,6 @@ export class NFTCollectionController extends AbstractEntity {
               });
               const { _24h, todayTrade } = await this.get24HValues(collection.contract);
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
-              floorPrice= await this.getFloorPrice(`${collection._id}`)
               return {
                 _id: collection._id,
                 logoUrl: collection.logoUrl,
@@ -267,7 +272,6 @@ export class NFTCollectionController extends AbstractEntity {
               });
               const { _24h, todayTrade } = await this.get24HValues(collection.contract);
               const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
-              floorPrice= await this.getFloorPrice(`${collection._id}`)
               return {
                 _id: collection._id,
                 logoUrl: collection.logoUrl,
@@ -590,13 +594,11 @@ export class NFTCollectionController extends AbstractEntity {
     }
     const activities = await activityTable.find({ collection: collectionId }).toArray();
     collection.activities = activities;
-    
     const nfts = await nftTable.find({ collection: collectionId }).toArray();
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
-    const f= await this.getFloorPrice(`${collection._id}`)
-    collection.floorPrice = f;
+    collection.floorPrice = 0;
     collection.totalVolume = 0;
     collection.owners = owners.length;
     collection.items = nfts.length;
@@ -625,12 +627,10 @@ export class NFTCollectionController extends AbstractEntity {
     const activities = await activityTable.find({ collection: `${collection._id}` }).toArray();
     collection.activities = activities;
     const nfts = await nftTable.find({ collection: `${collection._id}` }).toArray();
-    
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
     owners = owners.filter((item, pos) => owners.indexOf(item) == pos);
-    const f= await this.getFloorPrice(`${collection._id}`)
-    collection.floorPrice = f;
+    collection.floorPrice = 0;
     collection.totalVolume = 0;
     collection.owners = owners.length;
     collection.items = nfts.length;
@@ -739,16 +739,11 @@ export class NFTCollectionController extends AbstractEntity {
     return { _24h, todayTrade };
   }
 
-  
   private async getFloorPrice (collection : string){
     const actTable = this.mongodb.collection(this.activityTable);
-    const fList =  await actTable.find({collection:collection , type: { $in: [ActivityType.LISTFORSALE,ActivityType.SOLD] }}, { limit: 1, sort: { price: 1 } }).toArray() as Array<IActivity>;
-    if (fList && fList.length>0){
-      return fList[0].price
-    }else{
-      return 0
-    }
-    
+    const fList =  await actTable.find({collection:collection}, { limit: 1, sort: { price: 1 } }).toArray() as Array<IActivity>;
+
+    console.log(fList)
 
   }
 }
