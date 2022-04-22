@@ -354,12 +354,8 @@ export class NFTCollectionController extends AbstractEntity {
         if (filters) {
           aggregation = this.parseFilters(filters);
         }
-        if (!result){
-          return respond("collection items not found.", true, 422);
-        }
         // const nfts = await nftTable.aggregate(aggregation).toArray() as Array<INFT>;
         const nfts = (await nftTable.find({ collection: collectionId }).toArray()) as Array<INFT>;
-        console.log(nfts);
         if (nfts) {
           result.nfts = nfts;
         } else {
@@ -373,7 +369,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -445,21 +440,16 @@ export class NFTCollectionController extends AbstractEntity {
           
           const detailedActivity = await Promise.all( 
             history.map(async (activity) => {
-              // if (activity.type==ActivityType.OFFERCOLLECTION){
-              //   const nft = await nftTable.find({ collection: activity.collection},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
-              //     activity.nftObject =nft
-              //     return activity;
-              // }else{
-                if (activity && activity.nftId){
-                  const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-                  activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
-                  
-                }else{
-                  activity.isCollection=true;
-                }
+              if (activity.type==ActivityType.OFFERCOLLECTION){
+                const nft = await nftTable.find({ collection: activity.collection},{projection:{'artURI':1,'_id':0,'name':1}}).toArray() as Array<INFT>
+
+                  activity.nftObject =nft
+                  return activity;
+              }else{
+                const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
+                activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
                 return activity;
-                
-              // }
+              }
               
             })
           );
