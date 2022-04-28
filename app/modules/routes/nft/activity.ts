@@ -1,8 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { ActivityController } from "../../controller/ActivityController";
-import { NFTOwnerController } from "../../controller/NFTOwnerController";
 import { parseQueryUrl } from "../../util/parse-query-url";
-import { respond } from "../../util/respond";
 
 /**
  * Get all NFTs in collection
@@ -42,8 +40,6 @@ export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) =>
 export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, price, endDate, fee } = req.body as any;
   const ctl = new ActivityController();
-  const owner = new NFTOwnerController();
-  const findPerson=await owner.findPerson(seller);
   const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
   res.send(result);
 };
@@ -51,8 +47,6 @@ export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
 export const makeOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId, seller, buyer, price, endDate } = req.body as any;
   const ctl = new ActivityController();
-  const owner = new NFTOwnerController();
-  const findPerson=await owner.findPerson(buyer);
   const result = await ctl.makeOffer(collectionId, nftId, seller, buyer, price, endDate);
   res.send(result);
 };
@@ -65,9 +59,9 @@ export const approveOffer = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
-  const { collectionId, nftId, seller, buyer,price } = req.body as any;
+  const { collectionId, nftId, seller, buyer } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.transfer(collectionId, nftId, seller, buyer,price);
+  const result = await ctl.transfer(collectionId, nftId, seller, buyer);
   res.send(result);
 };
 
@@ -88,17 +82,14 @@ export const cancelListForSale = async (req: FastifyRequest, res: FastifyReply) 
 export const makeCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, seller, buyer, price, endDate } = req.body as any;
   const ctl = new ActivityController();
-  const owner = new NFTOwnerController();
-  const findPerson=await owner.findPerson(buyer);
-
   const result = await ctl.makeCollectionOffer(collectionId, seller, buyer, price, endDate);
   res.send(result);
 };
 
 export const cancelCollectionOffer = async (req: FastifyRequest, res: FastifyReply) => {
-  const {activityId, collectionId, seller , buyer} = req.body as any;
+  const { collectionId, seller } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.cancelCollectionOffer(activityId,collectionId, seller,buyer);
+  const result = await ctl.cancelCollectionOffer(collectionId, seller);
   res.send(result);
 };
 
@@ -117,8 +108,8 @@ export const signOffer = async (req: FastifyRequest, res: FastifyReply) => {
 
 export const deleteActivityId = async(req: FastifyRequest, res: FastifyReply) => {
 
-  const {id} = req.params as any;
+  const {activityId} = req.params as any;
   const ctl = new ActivityController();
-  const result= await ctl.deleteActivity(id);
+  const result= await ctl.deleteActivity(activityId);
   res.send(result);
 }

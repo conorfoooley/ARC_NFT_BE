@@ -3,7 +3,6 @@ export interface INFT {
   collection: string; // collection contract address
   index: number; // index of nft in collection
   owner: string; // owner
-  owners: any;
   creator: string; // creator
   artURI: string; // URI of art image
   name: string; // nft name
@@ -15,8 +14,7 @@ export interface INFT {
   isExplicit: boolean; // explicit flag
   explicitContent?: string; // explicit content
   royalties?: number; // royalties
-  saleStatus: any;
-  mintStatus: any;
+  status?: string; // For Sale, Minted, Sold,
   status_date?: number;
   tokenType: TokenType; // eq ERC721 or ERC 1155
   contentType: ContentType;
@@ -38,13 +36,4 @@ export enum TokenType {
 export interface IPrice {
   price: number;
   timestamp: Date;
-}
-
-export enum SaleStatus {
-  NOTFORSALE = <any>"Not For Sale",
-  FORSALE = <any>"For Sale",
-}
-export enum MintStatus {
-  LAZYMINTED = <any>"Lazy Minted",
-  MINTED = <any>"Minted",
 }

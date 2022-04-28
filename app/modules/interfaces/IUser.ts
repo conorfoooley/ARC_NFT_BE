@@ -14,8 +14,5 @@ export interface IUser {
     exchanges?: Array<IAPIKey>
     authorizedBrowsers?: Array<IAuthorizedBrowser>,
     liquidityProvisions?: Array<ILiquidityProvision>
-    verified?:Boolean
-    uuid?:string
-    sig?:string
     [key: string]: any
 }

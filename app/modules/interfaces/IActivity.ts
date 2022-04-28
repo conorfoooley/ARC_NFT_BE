@@ -13,18 +13,15 @@ export interface IActivity {
   fee?: number; // fee of list for sale
   nonce?: number; // Nonce
   signature?: object; // signature of activity
-  active?: boolean;
-  offerCollection?:number;
 }
 
 export enum ActivityType {
-  MINTED = <any>"Mint",
-  TRANSFER = <any>"Transfer",
-  SALE = <any>"Sale",
-  LIST = <any>"List",
   OFFER = <any>"Offer",
-  CANCELLIST = <any>"Cancel list",
-  CANCELOFFER = <any>"Cancel offer",
   OFFERCOLLECTION = <any>"OfferCollection",
+  SOLD = <any>"Sold",
+  TRANSFER = <any>"Transfer",
+  LISTFORSALE = <any>"List",
+  CANCELED = <any>"Canceled",
+  MINTED = <any>"Mint",
   NONE = <any>"None",
 }
