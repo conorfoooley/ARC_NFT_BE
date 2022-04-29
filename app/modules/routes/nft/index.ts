@@ -1,7 +1,6 @@
 import { config } from "../../../config/config";
 import {
   createItem,
-  bulkUpload,
   deleteItem,
   getAllItems,
   getItemDetail,
@@ -49,6 +48,7 @@ import {
   signOffer,
   deleteActivityId,
 } from "./activity";
+import { getReward } from "./reward";
 
 /**
  * Exports the nft collection actions routes.
@@ -84,14 +84,13 @@ export const nft = async (router: any, options: any) => {
   router.post("/activity/signOffer", signOffer);
 
   router.get("/items", getAllItems);
-  router.get("/items/trending", getTrendingItems);
   router.post("/items/create", config.route("jwt"), createItem);
-  router.post("/items/bulk-upload", bulkUpload);
   router.get("/items/:collectionId/:nftId/history", config.routeParamsValidation(), getItemHistory);
   router.get("/items/:collectionId/:nftId/offers", config.routeParamsValidation(), getItemOffers);
   router.get("/items/:collectionId/:nftId", config.routeParamsValidation(), getItemDetail);
-  router.put("/items/:nftId", config.route("jwt"), updateItem);
   router.delete("/items/:id", config.route("jwt"), deleteItem);
+  router.put("/items/:nftId", config.route("jwt"), updateItem);
+  router.get("/items/trending", getTrendingItems);
 
   router.get("/owners", getAllOwners);
   router.post("/owners/:ownerId", config.route("jwt"), createOwner);
@@ -104,4 +103,6 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
+  router.get("/rewards/:walletId", getReward);
+  
 };
