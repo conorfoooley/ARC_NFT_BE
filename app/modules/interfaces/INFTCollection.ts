@@ -18,7 +18,6 @@ export interface INFTCollection {
   platform: string;             // platform
   properties: Object;
   offerStatus: OfferStatusType;
-  volume?:number
 }
 
 export enum OfferStatusType {
