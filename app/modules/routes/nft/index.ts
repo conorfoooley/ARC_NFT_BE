@@ -48,7 +48,6 @@ import {
   signOffer,
   deleteActivityId,
 } from "./activity";
-import { getReward } from "./reward";
 
 /**
  * Exports the nft collection actions routes.
@@ -103,6 +102,4 @@ export const nft = async (router: any, options: any) => {
   router.get("/owners/:ownerId/offers", config.routeParamsValidation(), getOwnerOffers);
 
   router.get("/search", getCollectionsItems);
-  router.get("/rewards/:walletId", getReward);
-  
 };
