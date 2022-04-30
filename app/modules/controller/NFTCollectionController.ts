@@ -179,10 +179,10 @@ export class NFTCollectionController extends AbstractEntity {
         let count ;
         if (aggregation && aggregation.filter){
           count = await collectionTable.find({$or:aggregation.filter}).count();
-          result=aggregation.sort? await collectionTable.find({$or:aggregation.filter}).sort(aggregation.sort).toArray() as Array<INFT>:await collectionTable.find({$or:aggregation.filter}).toArray() as Array<INFT>;
+          result=aggregation.sort? await collectionTable.find({$or:aggregation.filter}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>:await collectionTable.find({$or:aggregation.filter}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
         }else{
           count = await collectionTable.find().count();
-          result=aggregation.sort?await collectionTable.find({}).sort(aggregation.sort).toArray():await collectionTable.find({}).toArray() as Array<INFT>;
+          result=aggregation.sort?await collectionTable.find({}).sort(aggregation.sort).skip(aggregation.skip).limit(aggregation.limit).toArray():await collectionTable.find({}).skip(aggregation.skip).limit(aggregation.limit).toArray() as Array<INFT>;
         }
 
         
@@ -560,7 +560,7 @@ export class NFTCollectionController extends AbstractEntity {
               // }else{
                 if (activity && activity.nftId){
                   const nft = (await nftTable.findOne({ collection: activity.collection, index: activity.nftId })) as INFT;
-                  activity.nftObject = { artURI: nft?.artURI, name: nft?.name };
+                  activity.nftObject = { artUri: nft?.artURI, name: nft?.name };
                 }else{
                   activity.isCollection=true;
                 }
@@ -592,7 +592,7 @@ export class NFTCollectionController extends AbstractEntity {
    * @param siteUrl
    * @param discordUrl
    * @param instagramUrl
-   * @param twitterUrl
+   * @param mediumUrl
    * @param telegramUrl
    * @param creatorEarning
    * @param blockchain
@@ -611,7 +611,7 @@ export class NFTCollectionController extends AbstractEntity {
     siteUrl,
     discordUrl,
     instagramUrl,
-    twitterUrl,
+    mediumUrl,
     telegramUrl,
     creatorEarning,
     blockchain,
@@ -676,7 +676,7 @@ export class NFTCollectionController extends AbstractEntity {
         bannerUrl: bannerIpfs,
         description: description ?? "",
         category: category ?? "",
-        links: [siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", twitterUrl ?? "", telegramUrl ?? ""],
+        links: [siteUrl ?? "", discordUrl ?? "", instagramUrl ?? "", mediumUrl ?? "", telegramUrl ?? ""],
         platform: "ARC",
         properties: {},
         offerStatus: OfferStatusType.NONE,

@@ -130,7 +130,8 @@ export class NFTOwnerController extends AbstractEntity {
     bio: string,
     username: string,
     social: string,
-    email: string
+    email: string,
+    optIn: boolean,
   ): Promise<IPerson | IResponse> {
     const collection = this.mongodb.collection(this.table);
     const findOwner = (await collection.findOne(this.findUserQuery(wallet))) as IPerson;
@@ -144,7 +145,7 @@ export class NFTOwnerController extends AbstractEntity {
       bio,
       username: username,
       email:email,
-
+      optIn:optIn,
       // nfts: [],
       // collections: []
       // created: [],
@@ -262,7 +263,7 @@ export class NFTOwnerController extends AbstractEntity {
               const coll = (await collection.findOne({ _id: new ObjectId(item.collection) })) as INFTCollection;
               return {
                 ...item,
-                nft: { artURI: nfts?.artURI, name: nfts?.name },
+                nft: { artUri: nfts?.artURI, name: nfts?.name },
                 collection: { ...coll },
               };
             })
@@ -415,7 +416,7 @@ export class NFTOwnerController extends AbstractEntity {
               item.collectionId = item.collection;
               item.collection = col.contract;
 
-              item.nft = { artURI: nfts.artURI, name: nfts.name };
+              item.nft = { artUri: nfts.artURI, name: nfts.name };
               rst.push(item)
               }
               
