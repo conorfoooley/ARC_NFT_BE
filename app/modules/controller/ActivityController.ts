@@ -94,7 +94,6 @@ export class ActivityController extends AbstractEntity {
           nft.mintStatus = MintStatus.MINTED;
           nft.owner = buyer;
           nft.status_date = status_date;
-          nft.price=prc;
           collData.volume=vol+prc;
           await collTable.replaceOne(this.findCollectionById(collectionId),collData);
           await nftTable.replaceOne(this.findNFTItem(collectionId, index), nft);
@@ -158,7 +157,6 @@ export class ActivityController extends AbstractEntity {
             nft.saleStatus = SaleStatus.NOTFORSALE;
             nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
-            nft.price=prc;
             nft.status_date = status_date;
             collData.offerStatus=OfferStatusType.NONE;
             const saleActivity: IActivity = {
@@ -223,7 +221,6 @@ export class ActivityController extends AbstractEntity {
             nft.mintStatus = MintStatus.MINTED;
             nft.owner = buyer;
             nft.status_date = status_date;
-            nft.price=prc;
             collData.volume=vol+prc;
             offer.active=false;
             await collTable.replaceOne(this.findCollectionById(collectionId),collData);

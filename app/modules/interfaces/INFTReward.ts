@@ -8,8 +8,6 @@ export interface INFTReward {
     pnft?:number;
     listingScore?:number;
     listingReward?:number; 
-    claim?:number;
-    
   }
   
 
