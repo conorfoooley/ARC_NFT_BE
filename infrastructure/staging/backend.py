@@ -110,6 +110,12 @@ class Stack(core.Stack):
                                         },
                                     },
                                     {
+                                        "name": "MONGODB_SCHEMA",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "mongo-creds", "key": "schema"}
+                                        },
+                                    },
+                                    {
                                         "name": "JWT_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "auth", "key": "jwt_secret"}
@@ -191,6 +197,18 @@ class Stack(core.Stack):
                                         "name": "MORALIS_MASTER_KEY",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "moralis", "key": "moralis_masterkey"}
+                                        },
+                                    },
+                                    {
+                                        "name": "OPENSEA_KEY",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_key"}
+                                        },
+                                    },
+                                    {
+                                        "name": "OPENSEA_ADDR",
+                                        "valueFrom": {
+                                            "secretKeyRef": {"name": "opensea", "key": "opensea_addr"}
                                         },
                                     },
                                 ],
