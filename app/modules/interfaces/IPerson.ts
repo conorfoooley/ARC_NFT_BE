@@ -8,5 +8,4 @@ export interface IPerson {
   social?: string;                      // social link of user
   nonce?:number;
   email?:string;
-  optIn?:boolean;               
 }
