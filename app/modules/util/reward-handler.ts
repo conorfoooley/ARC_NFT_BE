@@ -18,7 +18,7 @@ export class rewardHelper extends AbstractEntity {
     async calculateReward():Promise<void|IResponse>{
         try {
             if (this.mongodb) {
-                console.log('calculate reward')
+                
                 const person= this.mongodb.collection(this.ownerTable);
                 const colltable=this.mongodb.collection(this.collectiontable);
                 const result = await person.find({}).toArray();
@@ -189,7 +189,7 @@ export class rewardHelper extends AbstractEntity {
             findReward.pnft=PNFT;
             findReward.listingScore=LISTINGSCORE;
             findReward.listingReward=LISTINGREWARD;
-            await rewardD.replaceOne({_id:ObjectID(findReward._id.toString())},findReward)
+            await rewardD.replaceOne({_id:new ObjectID(findReward._id.toString())},findReward)
          }else{
              insertData['date']=startDate;
              await rewardD.insertOne(insertData);
