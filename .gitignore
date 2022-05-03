@@ -2,7 +2,6 @@
 **/dist
 *lock.json
 .env
-.venv
 *-local*
 **/logs/*.*
 dbaconfig.ts*
@@ -14,4 +13,3 @@ venv
 cdk.out
 __pycache__
 thunder-tests.DS_Store
-.DS_Store
