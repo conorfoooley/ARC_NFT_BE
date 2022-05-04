@@ -57,7 +57,6 @@ async function mount() {
       {
         
         cronTime:'0 0 * * *',
-        
         onTick: async server => {
           console.log('run');
           const x = new rewardHelper();
