@@ -40,15 +40,11 @@ export const getAllActivites = async (req: FastifyRequest, res: FastifyReply) =>
  *    fail:     501
  */
 export const listForSale = async (req: FastifyRequest, res: FastifyReply) => {
-  const userSession = req["session"] as any;
-  const loginUser =  userSession.walletId;
-  // console.log("-->", loginUser);
   const { collectionId, nftId, seller, price, endDate, fee } = req.body as any;
   const ctl = new ActivityController();
   const owner = new NFTOwnerController();
   const findPerson=await owner.findPerson(seller);
-
-  const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0, loginUser);
+  const result = await ctl.listForSale(collectionId, nftId, seller, price ?? 0, endDate ?? 0, fee ?? 0);
   res.send(result);
 };
 
@@ -83,12 +79,9 @@ export const cancelOffer = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 export const cancelListForSale = async (req: FastifyRequest, res: FastifyReply) => {
-  const userSession = req["session"] as any;
-  const loginUser =  userSession.walletId ?? null;
-
   const { collectionId, nftId, seller, activityId } = req.body as any;
   const ctl = new ActivityController();
-  const result = await ctl.cancelListForSale(collectionId, nftId, seller, activityId,loginUser);
+  const result = await ctl.cancelListForSale(collectionId, nftId, seller, activityId);
   res.send(result);
 };
 
