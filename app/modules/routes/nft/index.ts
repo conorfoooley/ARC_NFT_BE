@@ -25,7 +25,6 @@ import {
   deleteCollection,
   getCollectionOffer,
   updateCollection,
-  getHotCollections,
 } from "./collection";
 import {
   createOwner,
@@ -64,7 +63,6 @@ export const nft = async (router: any, options: any) => {
    */
   router.get("/collection", getCollections);
   router.get("/collection/top", getTopCollections);
-  router.get("/collection/hot", getHotCollections);
   router.get("/collection/url/:url", getCollectionByUrl);
   router.get("/collection/:collectionId/items", config.routeParamsValidation(), getItems);
   router.get("/collection/:collectionId/owners", config.routeParamsValidation(), getOwners);
