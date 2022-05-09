@@ -16,7 +16,7 @@ export interface INFTCollection {
   isVerified: boolean;          // verified flag
   isExplicit: boolean;         // explicit flag
   platform: string;             // platform
-  properties: Array<string>;
+  properties: Object;
   offerStatus: OfferStatusType;
   volume?:number
   tagCollection?:string

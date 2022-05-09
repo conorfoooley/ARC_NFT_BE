@@ -85,25 +85,20 @@ export const createItem = async (req, res) => {
   res.send(result);
 };
 
-export const batchUpload = async (req, res) => {
-  const { csvFile, collectionId, tokenType } = req.body;
-  if (!csvFile) {
+export const bulkUpload = async (req, res) => {
+  if (req.body && !req.body.csvFile) {
     throw new Error("CSV is missing");
   }
-  const buffer = await csvFile.toBuffer();
+  const buffer = await req.body.csvFile.toBuffer();
   parse(buffer, { columns: true }, async function (err, records) {
     if (err) {
       return res.send(err);
     }
+    const collectionUrl = records[0]["Collection"].replace("/", "");
     const user = req["session"] as any;
-    const owner = user.walletId.toLowerCase();
+    const walletAddress = user.walletId.toLowerCase();
     const ctl = new NFTController();
-    const uploadRes = await ctl.batchUpload({
-      collectionId: collectionId.value,
-      tokenType: tokenType.value,
-      owner,
-      records,
-    });
+    const uploadRes = await ctl.bulkUpload(collectionUrl, walletAddress, records);
     return res.send(uploadRes);
   });
 };
