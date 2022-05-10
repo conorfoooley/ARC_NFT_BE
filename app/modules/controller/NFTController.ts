@@ -507,20 +507,13 @@ export class NFTController extends AbstractEntity {
       if (result) {
         nft._id = result.insertedId;
 
-        Object.keys(nft.properties).forEach((propertyName) => {
-
-          if (collection.properties && collection.properties[propertyName]){
-            if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
-              collection.properties[propertyName].push(nft.properties[propertyName]);
+        if (Array.isArray(nft.properties)) {
+          for (const property of nft.properties) {
+            if (!collection.properties[property.title].includes(property.name)) {
+              collection.properties[property.title].push(property.name);
             }
-          }else{
-
-            collection.properties[propertyName]=[];
-            collection.properties[propertyName].push(nft.properties[propertyName]);
           }
-          
-        });
-
+        }
         await collectionTable.replaceOne({ _id: new ObjectId(collectionId) }, collection);
       }
       return result ? respond(nft) : respond("Failed to create a new nft.", true, 501);
@@ -567,7 +560,7 @@ export class NFTController extends AbstractEntity {
           saleStatus: SaleStatus.NOTFORSALE,
           mintStatus: MintStatus.LAZYMINTED,
           status_date: new Date().getTime(),
-          properties: {},
+          properties: [],
           lockContent: record["Unlockable Content"] === "No" ? "" : record["Unlockable Content"],
           tokenType: tokenType === "ERC721" ? TokenType.ERC721 : TokenType.ERC1155,
           contentType:
@@ -616,17 +609,21 @@ export class NFTController extends AbstractEntity {
   async updateNFT(id: string, nft: any) {
     try {
       if (this.mongodb) {
+        if (nft.properties && !Array.isArray(nft.properties)) {
+          nft.properties = JSON.parse(nft.properties);
+        }
         const nftTable = this.mongodb.collection(this.table);
         const result = await nftTable.updateOne({ _id: new ObjectId(id) }, { $set: { ...nft } });
 
-        if (nft.properties) {
+        if (Array.isArray(nft.properties)) {
           const collectionTable = this.mongodb.collection(this.nftCollectionTable);
           const collection = (await collectionTable.findOne({ _id: new ObjectId(nft.collection) })) as INFTCollection;
-          Object.keys(nft.properties).forEach((propertyName) => {
-            if (!collection.properties[propertyName].includes(nft.properties[propertyName])) {
-              collection.properties[propertyName].push(nft.properties[propertyName]);
+
+          for (const property of nft.properties) {
+            if (!collection.properties[property.title].includes(property.name)) {
+              collection.properties[property.title].push(property.name);
             }
-          });
+          }
           await collectionTable.replaceOne({ _id: new ObjectId(nft.collection) }, collection);
         }
         return respond(result);
