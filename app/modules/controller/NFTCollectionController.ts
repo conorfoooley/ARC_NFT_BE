@@ -70,7 +70,6 @@ export class NFTCollectionController extends AbstractEntity {
         const nftTable = this.mongodb.collection(this.nftTable);
         const ownerTable = this.mongodb.collection(this.ownerTable);
         let SK = keyword.split(" ");
-        
         SK.push(keyword);
         let searchKeyword = SK.map(function (e) {
           return new RegExp(e, "igm");
@@ -80,17 +79,17 @@ export class NFTCollectionController extends AbstractEntity {
         //   aggregation = this.parseFilters(filters);
         // }
         // const result = (await collectionTable.aggregate(aggregation).toArray()) as Array<INFTCollection>;
-        console.log(searchKeyword);
         const result = (await collectionTable
           .find({
             $or: [
               { name: { $in: searchKeyword } },
               { description: { $in: searchKeyword } },
+              { blockchain: { $regex: new RegExp(keyword, "igm") } },
               { category: { $in: searchKeyword } },
               { platform: { $in: searchKeyword } },
               { links: { $in: searchKeyword } },
             ],
-          }).sort({volume:-1})
+          })
           .toArray()) as Array<INFTCollection>;
         let collections = [];
         if (result) {
@@ -161,7 +160,6 @@ export class NFTCollectionController extends AbstractEntity {
         throw new Error("Could not connect to the database.");
       }
     } catch (error) {
-      console.log(error);
       return respond(error.message, true, 500);
     }
   }
@@ -913,14 +911,11 @@ export class NFTCollectionController extends AbstractEntity {
       const bannerIpfs = bannerImgFile
         ? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection")
         : "";
-      let initialProperties: any = {};
-      if (properties){
-        const propertyNames: string[] = JSON.parse(properties);
-        propertyNames.forEach((propertyName) => {
+      const initialProperties: any = {};
+      const propertyNames: string[] = JSON.parse(properties);
+      propertyNames.forEach((propertyName) => {
         initialProperties[propertyName] = [];
-        });
-      }
-      
+      });
       const nftCollection: INFTCollection = {
         name: name,
         contract: contract,
@@ -953,7 +948,6 @@ export class NFTCollectionController extends AbstractEntity {
         ? respond({ ...nftCollection, creator: creator })
         : respond("Failed to create a new collection.", true, 500);
     } catch (e) {
-      console.log(e);
       return respond(e.message, true, 500);
     }
   }
@@ -1003,7 +997,6 @@ export class NFTCollectionController extends AbstractEntity {
     logoName,
     featureName,
     bannerName,
-    properties,
     logoMimetype,
     featuredMimetype,
     bannerMimetype
@@ -1082,7 +1075,6 @@ export class NFTCollectionController extends AbstractEntity {
         twitterUrl ?? "",
         telegramUrl ?? "",
       ];
-      findResult.properties = properties;
       const result = await collection.replaceOne({ _id: new ObjectId(collectionId) }, findResult);
       return result ? respond({ ...findResult }) : respond("Failed to update a new collection.", true, 500);
     } catch (e) {
@@ -1104,8 +1096,8 @@ export class NFTCollectionController extends AbstractEntity {
     if (!collection) {
       return respond("collection not found", true, 501);
     }
-    // const activities = await activityTable.find({ collection: collectionId }).toArray();
-    // collection.activities = activities;
+    const activities = await activityTable.find({ collection: collectionId }).toArray();
+    collection.activities = activities;
     const nfts = await nftTable.find({ collection: collectionId }).toArray();
     collection.nfts = nfts;
     let owners = nfts.map((nft) => nft.owner);
@@ -1120,16 +1112,6 @@ export class NFTCollectionController extends AbstractEntity {
     const creator = (await ownerTable.findOne(this.findPerson(collection.creator))) as IPerson;
     collection.creatorDetail = creator;
     collection.volume ?? 0;
-
-    const actData = await activityTable
-                .find({
-                  collection: collectionId,
-                  active: true,
-                  type: { $in: [ActivityType.OFFERCOLLECTION] },
-                })
-                .toArray();
-
-    collection.offer_lists=actData;
 
     return respond(collection);
   }

@@ -180,7 +180,6 @@ export const updateCollection = async (req, res) => {
     body.logoName,
     body.featureName,
     body.bannerName,
-    body.properties,
     logoMimetype,
     featuredMimetype,
     bannerMimetype
