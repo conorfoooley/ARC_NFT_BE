@@ -1024,20 +1024,14 @@ export class NFTCollectionController extends AbstractEntity {
     const collection = this.mongodb.collection(this.table);
     const ownerTable = this.mongodb.collection(this.ownerTable);
     try {
-      if (creatorId) {
-        if (!ObjectId.isValid(creatorId)) {
-          return respond("Invalid creatorID", true, 422);
-        }
-        const creator = (await ownerTable.findOne(this.findPersonById(creatorId))) as IPerson;
-        if (creator.wallet.toLowerCase() !== loginUser) {
-          return respond("Collection owner should be created by the login user", true, 422);
-        }
-        if (!creator) {
-          return respond("creator address is invalid or missing", true, 422);
-        }
-      }
+      
 
       const findResult = (await collection.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
+
+
+      if (findResult && findResult.creator.toLowerCase() !== loginUser) {
+        return respond("Collection owner should be update by the login user", true, 422);
+      }
 
       if (!findResult && findResult._id) {
         return respond("This collection id not found", true, 422);
@@ -1094,7 +1088,23 @@ export class NFTCollectionController extends AbstractEntity {
         twitterUrl ?? "",
         telegramUrl ?? "",
       ];
-      findResult.properties = properties;
+      let initialProperties: any = {};
+      if (properties){
+        console.log(properties);
+        const propertyNames: any = JSON.parse(properties);
+
+        if (typeof propertyNames === 'object'){
+          for (let key in propertyNames) {
+            initialProperties[key] = [];
+          }
+        } else if(Array.isArray(propertyNames)){
+          propertyNames.forEach((propertyName) => {
+            initialProperties[propertyName] = [];
+            });
+        }
+      };
+
+      findResult.properties = initialProperties;
       const result = await collection.replaceOne({ _id: new ObjectId(collectionId) }, findResult);
       return result ? respond({ ...findResult }) : respond("Failed to update a new collection.", true, 500);
     } catch (e) {
