@@ -672,7 +672,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  };
+  }
   /**
    * Get item list in collection
    *
@@ -713,7 +713,7 @@ export class NFTCollectionController extends AbstractEntity {
     } catch (error) {
       return respond(error.message, true, 500);
     }
-  };
+  }
   /**
    * Get all activities (bids and transfer) of NFT items in collection
    *
@@ -909,6 +909,9 @@ export class NFTCollectionController extends AbstractEntity {
       const featuredIpfs = featuredImgFile? await S3uploadImageBase64(featuredImgFile, `${featureName}_${Date.now()}`, featuredMimetype, "collection"): "";
       const bannerIpfs = bannerImgFile? await S3uploadImageBase64(bannerImgFile, `${bannerName}_${Date.now()}`, bannerMimetype, "collection"): "";
       let initialProperties: any = {};
+
+      // console.log('---loogoogo',logoIpfs);
+
       // if (isExplicit.toLowerCase() === "true"){
         logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
         featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
@@ -939,9 +942,9 @@ export class NFTCollectionController extends AbstractEntity {
         blockchain: blockchain,
         isVerified: false,
         isExplicit: isExplicit,
-        logoUrl:logoIpfs && logoIpfs.location ? logoIpfs['location']:null,
-        featuredUrl: featuredIpfs && featuredIpfs.location ? featuredIpfs['location']:null,
-        bannerUrl: bannerIpfs && bannerIpfs.location?bannerIpfs['location']:null,
+        logoUrl: logoIpfs['location'],
+        featuredUrl: featuredIpfs['location'],
+        bannerUrl: bannerIpfs['location'],
         description: description ?? "",
         category: category ?? "",
         links: [
@@ -1044,7 +1047,6 @@ export class NFTCollectionController extends AbstractEntity {
       logoIpfs && logoIpfs['explicit']?isExplicit=true:isExplicit=false;
       featuredIpfs && featuredIpfs['explicit']?isExplicit=true:isExplicit=false;
       bannerIpfs && bannerIpfs['explicit']?isExplicit=true:isExplicit=false;
-
       if (logoFile) {
         findResult.logoUrl = logoIpfs['location'];
       }
