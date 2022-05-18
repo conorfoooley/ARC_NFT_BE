@@ -164,25 +164,8 @@ class Stack(core.Stack):
                                             "secretKeyRef": {"name": "contracts", "key": "pk_id"}
                                         },
                                     },
-                                    {
-                                        "name": "NFT_PRIVATE_KEY",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "contracts", "key": "nft_private_key"}
-                                        },
-                                    },
-                                    {
-                                        "name": "NFT_PURCHASE_MODULE_ADDRESS",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "contracts", "key": "nft_purchase_address"}
-                                        },
-                                    },
-                                    {
-                                        "name": "NFT_PK_ID",
-                                        "valueFrom": {
-                                            "secretKeyRef": {"name": "contracts", "key": "nft_pkid"}
-                                        },
-                                    },
-                                    {   "name": "AWS_S3_KEY",
+                                                                        {
+                                        "name": "AWS_S3_KEY",
                                         "valueFrom": {
                                             "secretKeyRef": {"name": "s3profile", "key": "aws_s3profile_key"}
                                         },
