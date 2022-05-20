@@ -51,7 +51,6 @@ import {
   cancelCollectionOffer,
   signOffer,
   deleteActivityId,
-  listForSaleBatch,
 } from "./activity";
 import { claimReward, getReward, getRewardAirDrop, getTest } from "./reward";
 import { sign } from "./sign";
@@ -85,8 +84,6 @@ export const nft = async (router: any, options: any) => {
   router.get("/activity",config.route("jwt"), getAllActivites);
   router.delete("/activity/:id", config.route("jwt"), deleteActivityId);
   router.post("/activity/listForSale", config.route("jwt"), listForSale);
-  // router.post("/activity/listForSale/batch", config.route("jwt"), listForSaleBatch);
-  router.post("/activity/listForSale/batch", config.route("jwt"), listForSaleBatch);
   router.post("/activity/makeOffer", config.route("jwt"), makeOffer);
   router.post("/activity/approveOffer", config.route("jwt"), approveOffer);
   router.post("/activity/transfer", config.route("jwt"), transfer);
