@@ -8,7 +8,24 @@ import { IResponse } from "../interfaces/IResponse";
 import { respond } from "./respond";
 
 const nodemailer = require("nodemailer");
- 
+
+// let transporter = nodemailer.createTransport({
+//     pool: true,
+//     host: 'smtp.gmail.com',
+//     port: 465,
+//     secure: true, // use TLS
+//     auth: {
+//         user: 'mujoko@arc.market',
+//         pass: 'pkfzhizgfthvkayy'
+//     }
+//   });
+//   let mailOptions = {
+//     from: 'mujoko@arc.market',
+//     to: 'aris@arc.market',
+//     subject: 'subject',
+//     html: '<h1>Aris ganteng</h1>',
+//   };
+
 export class mailHelper extends AbstractEntity {
   protected collectiontable: string = "NFTCollection";
   protected nftTable: string = "NFT";
@@ -19,8 +36,8 @@ export class mailHelper extends AbstractEntity {
     port: 465,
     secure: true,
     auth: {
-      user: "noreply@arc.market",
-      pass: "splxsmbxzuiiiexj",
+      user: "mujoko@arc.market",
+      pass: "pkfzhizgfthvkayy",
     },
   };
   protected senderEmail: string = "noreply@arc.market";
