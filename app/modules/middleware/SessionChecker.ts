@@ -32,16 +32,10 @@ export const SessionChecker = async (req, res, app) => {
               req.params.walletId.toLowerCase() !==
                 auth.session.walletId.toLowerCase()
             ) {
+              console.log('--->>>> forbiddn')
               res.code(403).send("Forbidden");
             }
-          } else {
-              if (_protected.permission==2){
-                return;
-              }else{
-                return res.code(401).send(auth)
-              }
-              
-          };
+          } else res.code(401).send(auth);
           break;
         default:
           res.code(401).send(auth);
