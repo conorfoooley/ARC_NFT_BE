@@ -12,20 +12,10 @@ export const getItemDetail = async (req: FastifyRequest, res: FastifyReply) => {
   const user = req["session"] as any;
   const owner = user && user.walletId?user.walletId.toLowerCase():null;
   
-  const ctl = new NFTController();  
-  const result = await ctl.getItemDetail(collectionId, nftId, owner);
-  res.send(result);
-};
-
-export const getItemSimple = async (req: FastifyRequest, res: FastifyReply) => {
-  const { blockchain, tokenId } = req.params as { blockchain: string; tokenId: number };
-    // const user = req["session"] as any;
-  // const owner = user && user.walletId?user.walletId.toLowerCase():null;  
   const ctl = new NFTController();
-  const result = await ctl.getItemSimple(blockchain, tokenId,null);
+  const result = await ctl.getItemDetail(collectionId, nftId,owner);
   res.send(result);
 };
-
 
 export const getItemHistory = async (req: FastifyRequest, res: FastifyReply) => {
   const { collectionId, nftId } = req.params as { collectionId: string; nftId: number };
@@ -86,10 +76,10 @@ export const createItem = async (req, res) => {
   
 
 
-  // const response_key = req.body["recaptcha"]?.value;
-  // if (!response_key)  throw new Error("Recaptcha response missing");
-  // const checkCaptcha = await recaptchaVerification(response_key);
-  // if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
   
   
 
@@ -145,10 +135,10 @@ export const batchUpload = async (req, res) => {
 
   
   const { csvFile, collectionId, tokenType } = req.body;
-  // const response_key = req.body["recaptcha"]?.value;
-  // if (!response_key)  throw new Error("Recaptcha response missing");
-  // const checkCaptcha = await recaptchaVerification(response_key);
-  // if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
 
 
   if (!csvFile) {
@@ -185,10 +175,10 @@ export const deleteItem = async (req: FastifyRequest, res: FastifyReply) => {
 export const updateItem = async (req: FastifyRequest, res: FastifyReply) => {
 
 
-  // const response_key = req.body["recaptcha"]?.value;
-  // if (!response_key)  throw new Error("Recaptcha response missing");
-  // const checkCaptcha = await recaptchaVerification(response_key);
-  // if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  const response_key = req.body["recaptcha"]?.value;
+  if (!response_key)  throw new Error("Recaptcha response missing");
+  const checkCaptcha = await recaptchaVerification(response_key);
+  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
   
   
   const ctl = new NFTController();
