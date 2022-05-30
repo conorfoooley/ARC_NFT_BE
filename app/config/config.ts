@@ -69,6 +69,7 @@ const config = {
             ownerId: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             contract: { type: "string", pattern: "^[a-zA-Z0-9-_]+$" },
             nftId: { type: "number" },
+            creatorEarning:{type:"number"}
           },
         },
         properties: {
@@ -135,6 +136,10 @@ const config = {
   google_recaptcha:{
     server:process.env["GOOGLE_RECAPTCHA"],
     urlVerification:process.env["GOOGLE_SITE_VERIFY"]
+  },
+  mail_auth:{
+    user:process.env["MAIL_USER"],
+    pass:process.env["MAIL_PASS"]
   }
 };
 

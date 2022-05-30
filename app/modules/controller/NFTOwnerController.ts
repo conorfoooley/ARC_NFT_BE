@@ -148,7 +148,6 @@ export class NFTOwnerController extends AbstractEntity {
       username: username,
       email:email,
       optIn:optIn,
-      nonce:0, //set 0 as default value
       // nfts: [],
       // collections: []
       // created: [],
@@ -307,7 +306,7 @@ export class NFTOwnerController extends AbstractEntity {
               }
               return {
                 ...item,
-                nft: { artURI: nfts?.artURI, name: nfts?.name },
+                nft: { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 collection: { ...coll },
               };
             })
@@ -432,7 +431,7 @@ export class NFTOwnerController extends AbstractEntity {
                 // console.log(col);
                 item.collectionId = item.collection;
                 item.collection = col && col.contract?col.contract:null;
-                item.nft = { artURI: nfts?.artURI, name: nfts?.name };
+                item.nft = { artURI: nfts?.artURI, name: nfts?.name,contentType:nfts?.contentType },
                 rst.push(item)
               }
               return item;
