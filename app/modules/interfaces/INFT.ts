@@ -25,7 +25,6 @@ export interface INFT {
   successContent?:string,
   successContentType?:string
   batchId?:string,
-  fee?:number
 }
 
 export enum ContentType {

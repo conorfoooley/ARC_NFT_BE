@@ -107,6 +107,7 @@ export const transfer = async (req: FastifyRequest, res: FastifyReply) => {
   const loginUser =  userSession?.walletId.toLowerCase();
   const result = await ctl.transfer(collectionId, nftId, seller, buyer, price,loginUser?? "");
   res.send(result);
+  res.send(result);
 };
 
 export const cancelOffer = async (req: FastifyRequest, res: FastifyReply) => {

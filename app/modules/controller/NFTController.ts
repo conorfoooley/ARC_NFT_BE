@@ -575,8 +575,7 @@ export class NFTController extends AbstractEntity {
             ? ContentType.VIDEO
             : contentType==='audio'
             ? ContentType.AUDIO
-            : ContentType.IMAGE,
-          fee:collection.creatorEarning??0
+            : ContentType.IMAGE
             
       };
       const result = await nftTable.insertOne(nft);
@@ -746,7 +745,6 @@ export class NFTController extends AbstractEntity {
             : contentType==='audio'
             ? ContentType.AUDIO
             : ContentType.IMAGE,
-            fee:collData.creatorEarning??0,
           successContent:record["Success Modal Content (optional)"]?record["Success Modal Content (optional)"] : "",
           successContentType:record["Success Content Type"] === "music"
           ? record["Success Content Type"].MUSIC
@@ -891,7 +889,7 @@ export class NFTController extends AbstractEntity {
                 })
                 .toArray();
               if (loginUser!==item.owner){
-                item.lockContent="locked content";
+                delete item.lockContent;
               }
               return {
                 ...item,

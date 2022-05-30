@@ -114,8 +114,6 @@ export class ActivityController extends AbstractEntity {
             from: seller,
             price: prc,
             to: buyer,
-            fee: nft.fee??0,
-            netPrice:this.calculateFee(prc,nft.fee)?.netPrice
           };
           nft.saleStatus = SaleStatus.NOTFORSALE;
           nft.mintStatus = MintStatus.MINTED;
@@ -130,35 +128,13 @@ export class ActivityController extends AbstractEntity {
             {
               collection: collectionId,
               active: true,
-              // from: seller,
-              nftId:index,
-              // to: buyer,
-              // price: prc,
+              from: seller,
+              to: buyer,
+              price: prc,
               $or: [{ type: ActivityType.LIST }, { type: ActivityType.OFFER }],
             },
             { $set: { active: false } }
           );
-          
-          const cancelOffer = await activityTable.find({
-            collection:collectionId,
-            active:true,
-            nftId:index,
-            $or: [{ type: ActivityType.OFFER }, { type: ActivityType.OFFERCOLLECTION }],
-          }).toArray()
-          await Promise.all(
-            cancelOffer.map(async (item) => {
-                await activityTable.updateOne({_id:new ObjectId(item._id)}, { $set: { active: false }});
-                await activityTable.insertOne({
-                  collection: item.collection,
-                  nftId: item.nftId,
-                  type: ActivityType.CANCELOFFER,
-                  price: item.prc,
-                  date: new Date().getTime(),
-                  from: item.from,
-                  to: item.to,
-                });
-            }))
-
           const result = await activityTable.insertOne(transfer);
           /** SEND EMAIL */
           const ownerData = (await personTable.findOne({ wallet: seller.toLowerCase() })) as IPerson;
@@ -243,8 +219,6 @@ export class ActivityController extends AbstractEntity {
                     date: new Date().getTime(),
                     from: item.from,
                     to: item.to,
-                    netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-                    fee:nft.fee
                   });
                   collData.volume = vol + prc;
                   await collTable.replaceOne(this.findCollectionById(collectionId), collData);
@@ -319,8 +293,6 @@ export class ActivityController extends AbstractEntity {
               to: buyer,
               price: prc,
               active: true,
-              netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-              fee:nft.fee
             });
 
             const email = new mailHelper();
@@ -401,9 +373,6 @@ export class ActivityController extends AbstractEntity {
             to: seller,
             nonce,
             batchId:nft.batchId,
-            fee: nft.fee??0,
-            netPrice:this.calculateFee(prc,nft.fee)?.netPrice,
-
             active: true,
           };
           const result = await activityTable.insertOne(offer);
@@ -510,11 +479,8 @@ export class ActivityController extends AbstractEntity {
                 from: buyer,
                 to: item.owner,
                 nonce,
-                batchId:item.batchId,
                 active: true,
                 offerCollection: collId,
-                fee: item.fee??0,
-                netPrice:this.calculateFee(prc,item.fee)?.netPrice,
               };
               const rOffer = await activityTable.insertOne(collOffer);
               return item;
@@ -552,6 +518,10 @@ export class ActivityController extends AbstractEntity {
       return respond(error.message, true, 500);
     }
   }
+  
+
+
+
   async listForSaleBatch(
     batchId:string,
     seller: string,
@@ -690,8 +660,7 @@ export class ActivityController extends AbstractEntity {
             startDate: startDate,
             endDate: endDate,
             from: seller,
-            fee: nft.fee??0,
-            netPrice:this.calculateFee(price,nft.fee)?.netPrice,
+            fee: 0,
             nonce,
             signature: { r: r??"", s: s??"", v: v??"" },
             active: true,
@@ -971,28 +940,5 @@ export class ActivityController extends AbstractEntity {
       collection: collectionId,
       index,
     };
-  }
-  private calculateFee(price:number=0, fee:number=0){
-
-    // typeof offer.price == "string" ? (prc = +offer.price) : (prc = offer.price);
-
-    
-    let ARCFee=price*(1/100);
-    let royaltiFee=price*(fee/100);
-    let totalFee= royaltiFee+ARCFee
-    let netPrice=price-totalFee;
-
-    
-
-    return {
-      netPrice,
-      royaltiFee,
-      totalFee,
-      ARCFee
-      
-    }
-
-
-    
   }
 }

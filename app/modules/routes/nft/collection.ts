@@ -1,6 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { config } from "../../../config/config";
+
 import { NFTCollectionController } from "../../controller/NFTCollectionController";
+import { uploadImageBase64 } from "../../util/morailsHelper";
 import { parseQueryUrl } from "../../util/parse-query-url";
 import { recaptchaVerification } from "../../util/recaptcha-helper";
 export const getCollectionsItems = async (req: FastifyRequest, res: FastifyReply) => {
@@ -117,10 +119,10 @@ export const updateCollection = async (req, res) => {
   const { collectionId } = req.params as any;
 
 
-  const response_key = req.body["recaptcha"]?.value;
-  if (!response_key)  throw new Error("Recaptcha response missing");
-  const checkCaptcha = await recaptchaVerification(response_key);
-  if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+  // const response_key = req.body["recaptcha"]?.value;
+  // if (!response_key)  throw new Error("Recaptcha response missing");
+  // const checkCaptcha = await recaptchaVerification(response_key);
+  // if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
 
 
 
@@ -203,10 +205,10 @@ export const createCollection = async (req, res) => {
 
 /** Captcha validation */
 
-const response_key = req.body["recaptcha"]?.value;
-if (!response_key)  throw new Error("Recaptcha response missing");
-const checkCaptcha = await recaptchaVerification(response_key);
-if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
+// const response_key = req.body["recaptcha"]?.value;
+// if (!response_key)  throw new Error("Recaptcha response missing");
+// const checkCaptcha = await recaptchaVerification(response_key);
+// if (checkCaptcha && !checkCaptcha.success)throw new Error(checkCaptcha.error);
 
 
 
