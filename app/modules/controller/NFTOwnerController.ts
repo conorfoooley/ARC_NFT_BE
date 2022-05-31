@@ -94,7 +94,6 @@ export class NFTOwnerController extends AbstractEntity {
         social: "",
         bio: "",
         username: "",
-        nonce:0
       });
       const result = await personTable.findOne(query);
       return respond({
@@ -149,7 +148,6 @@ export class NFTOwnerController extends AbstractEntity {
       username: username,
       email:email,
       optIn:optIn,
-      nonce:0, //set 0 as default value
       // nfts: [],
       // collections: []
       // created: [],
