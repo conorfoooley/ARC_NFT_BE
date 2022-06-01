@@ -888,6 +888,12 @@ export class NFTCollectionController extends AbstractEntity {
       if (!ObjectId.isValid(creatorId)) {
         return respond("Invalid creatorID", true, 422);
       }
+
+      let royalty= Number(creatorEarning)?+creatorEarning:0;
+      if (royalty>10 || royalty < 0 ){
+        return respond("Creator royalty must be between 0 & 10", true, 422);
+      }
+      
       const creator = (await ownerTable.findOne(this.findPersonById(creatorId))) as IPerson;
       if (!creator) {
         return respond("creator address is invalid or missing", true, 422);
