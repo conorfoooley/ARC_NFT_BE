@@ -33,14 +33,16 @@ export class NFTController extends AbstractEntity {
         const itemTable = this.mongodb.collection(this.table);
         const result = await itemTable.findOne(query);
         console.log(query);
+        
         if (result) {
+
           const rst:any={
-              description:result.description,
-              external_url:result.externalLink,
-              image:result.artURI,
-              name:result.name,
-              attributes:result.properties
-          }
+            description:result.description,
+            external_url:result.externalLink,
+            image:result.artURI,
+            name:result.name,
+            attributes:result.properties
+        }
           return rst
         }
         return respond("nft not found.", true, 422);
@@ -675,11 +677,8 @@ export class NFTController extends AbstractEntity {
         };
       };
       let nftVar;
-      await Promise.all(
-        records.map(async (record)=>{
-          // console.log(record["Success Modal Content (optional)"]);
-
-          nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
+      for (let record of records) {
+        nftVar = await globalTable.findOneAndUpdate({ globalId: "nft" },{$inc:{nftIndex:1}}) as IGlobal;
           const newIndex = nftVar && nftVar.value && nftVar.value.nftIndex + 1;
           const contentType = record["Content Type"];
           const nft: INFT = {
@@ -735,9 +734,9 @@ export class NFTController extends AbstractEntity {
           }else{
             notForSaleBatch.push({index:newIndex, price: +record["List Price (ETH)"]})
             notForSale.push({ ...nft, price: +record["List Price (ETH)"] });
-          }     
-        })
-    )
+          }  
+      }
+
       if (nfts.length > 0){
         await nftTable.insertMany(nfts);
         let collection = (await collectionTable.findOne({ _id: new ObjectId(collectionId) })) as INFTCollection;
