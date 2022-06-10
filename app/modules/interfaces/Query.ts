@@ -18,6 +18,5 @@ export interface IQueryFilters {
     amount?: number,
     page?:number,
     limit?:number,
-    range?:string,
     startAt?: Date
 }
