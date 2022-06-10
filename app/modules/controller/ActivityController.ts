@@ -889,7 +889,7 @@ export class ActivityController extends AbstractEntity {
                 startDate: actData.startDate,
                 endDate: actData.endDate,
                 from: actData.from?.toLowerCase(),
-                to: actData.to?.toLowerCase(),
+                to: item.owner?.toLowerCase(),
                 nonce:actData.nonce,
                 batchId:item.batchId,
                 active: true,
@@ -1072,7 +1072,7 @@ export class ActivityController extends AbstractEntity {
     _24hV = yesterDayTrade == 0 || !yesterDayTrade ? 0 : (todayTrade / yesterDayTrade) * 100;
     !_24hV ? (_24h = 0) : (_24h = _24hV);
    
-    return await  collTable.updateOne({_id:new ObjectId(address)},{$set:{_24h:todayTrade,_24Percent:_24h,yesterDayTrade}})
+    return await  collTable.updateOne({_id:ObjectId(address)},{$set:{_24h:todayTrade,_24Percent:_24h,yesterDayTrade}})
 
     
   }
